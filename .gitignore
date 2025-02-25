@@ -1,2 +1,3 @@
 phishing/__pycache__/
 malware/__pycache__/
+.env
