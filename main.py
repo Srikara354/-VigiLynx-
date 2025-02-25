@@ -18,7 +18,7 @@ class VigiLynx:
                 print('Phishing analysis completed')
             elif type.lower() == "malware":
                 if self.malware is None:
-                    self.malware = VirusTotalScanner('82f972cb016be5c2c461e4e427e9402d9b59ba24df595169b4de4054adefaf9d')
+                    self.malware = VirusTotalScanner('api_key')
                 self.malware.scan_and_get_results(source)
             else:
                 raise ValueError(f"Input {type} and/or {source} is not correct. \n Kindly refer to the documentation")
