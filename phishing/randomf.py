@@ -60,6 +60,4 @@ class PhishingDetector:
         print(f"Is Phishing: {bool(prediction[0])}")
 
 if __name__ == '__main__':
-    # detector = PhishingDetector()
-    # detector.predict_phishing("https://example.com")
     pass
