@@ -1,6 +1,11 @@
 import argparse
 from phishing.randomf import PhishingDetector
 from Malware.malCheck import VirusTotalScanner
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+api_key = os.getenv('API_KEY')
 
 class VigiLynx:
     def __init__(self):
@@ -17,6 +22,7 @@ class VigiLynx:
                 self.phishing.predict_phishing(source)
                 print('Phishing analysis completed')
             elif type.lower() == "malware":
+                print('api - ',api_key)
                 if self.malware is None:
                     self.malware = VirusTotalScanner('api_key')
                 self.malware.scan_and_get_results(source)
