@@ -18,6 +18,7 @@ class PhishingDetector:
         self.data = pd.read_csv(dataset_path)
         self.prepare_data()
         self.train_model()
+        self.cache = {}
 
     def prepare_data(self):
         self.data['status'] = self.data['status'].map({'phishing': 1, 'legitimate': 0})
@@ -72,13 +73,17 @@ class PhishingDetector:
             features['suspicious_words'] = sum([url.lower().count(word) for word in suspicious_words])
             
             try:
-                context = ssl.create_default_context()
-                with socket.create_connection((parsed_url.netloc, 443)) as sock:
-                    with context.wrap_socket(sock, server_hostname=parsed_url.netloc) as ssock:
-                        cert = ssock.getpeercert()
-                        features['ssl_valid'] = 1
-                        expiry_date = datetime.datetime.strptime(cert['notAfter'], '%b %d %H:%M:%S %Y %Z')
-                        features['cert_expiry_days'] = (expiry_date - datetime.datetime.now()).days
+                if parsed_url.scheme != 'https': 
+                    features['ssl_valid'] = 0
+                    features['cert_expiry_days'] = 0
+                else:   
+                    context = ssl.create_default_context()
+                    with socket.create_connection((parsed_url.netloc, 443),timeout=5) as sock:
+                        with context.wrap_socket(sock, server_hostname=parsed_url.netloc) as ssock:
+                            cert = ssock.getpeercert()
+                            features['ssl_valid'] = 1
+                            expiry_date = datetime.datetime.strptime(cert['notAfter'], '%b %d %H:%M:%S %Y %Z')
+                            features['cert_expiry_days'] = (expiry_date - datetime.datetime.now()).days
             except:
                 features['cert_expiry_days'] = 0
                 features['ssl_valid'] = 0
