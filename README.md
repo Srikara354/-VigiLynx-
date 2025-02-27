@@ -33,5 +33,5 @@ To start the VigiLynx system, run the following command:
 
 ````bash
 python3 main.py --type malware --source /path/to/file
-```yre656ouilkhgt67tuyie5urutuy798
+```adasdg
 ````
