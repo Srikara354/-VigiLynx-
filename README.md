@@ -31,7 +31,6 @@ To install VigiLynx, follow these steps:
 
 To start the VigiLynx system, run the following command:
 
-````bash
+```bash
 python3 main.py --type malware --source /path/to/file
-```adasdg
-````
+```
