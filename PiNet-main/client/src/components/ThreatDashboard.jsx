@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, AlertTriangle, BarChart2, PieChart } from 'lucide-react';
+import { Shield, AlertTriangle, BarChart2 } from 'lucide-react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, PieController, ArcElement, Tooltip, Legend } from 'chart.js';
 import axios from 'axios';
@@ -89,7 +89,7 @@ function ThreatDashboard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="card flex flex-col gap-6 items-center w-full max-w-4xl bg-white p-6 rounded-lg shadow-md"
+      className="card flex flex-col gap-6 items-center w-full bg-white p-6 rounded-lg shadow-md" // Removed max-w-4xl
     >
       <div className="flex items-center gap-2">
         <Shield size={32} className="text-[#00c4b4]" />
