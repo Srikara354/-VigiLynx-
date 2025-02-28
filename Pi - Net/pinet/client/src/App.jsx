@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 import CyberGuard from './components/CyberGuard';
 import ParentalMonitor from './components/ParentalMonitor';
+import CyberNews from './components/CyberNews';  // Import the new component
 
 function App() {
   const [view, setView] = useState('cyberguard');
@@ -32,6 +33,12 @@ function App() {
             >
               Parental Monitor
             </button>
+            <button
+              onClick={() => setView('news')}
+              className={`btn ${view === 'news' ? 'btn-primary' : 'btn-secondary'}`}
+            >
+              Cybersecurity News
+            </button>
           </nav>
         </div>
       </motion.header>
@@ -56,7 +63,9 @@ function App() {
           transition={{ duration: 0.6 }}
           className="w-full"
         >
-          {view === 'cyberguard' ? <CyberGuard /> : <ParentalMonitor />}
+          {view === 'cyberguard' && <CyberGuard />}
+          {view === 'parental' && <ParentalMonitor />}
+          {view === 'news' && <CyberNews />}
         </motion.div>
       </main>
     </div>
