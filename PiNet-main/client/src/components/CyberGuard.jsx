@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, FileText } from 'lucide-react';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 import AnalysisResult from './AnalysisResult';
+//import useTilt from '../useTilt';
 
 function CyberGuard() {
   const [inputType, setInputType] = useState('scan');
@@ -13,6 +14,8 @@ function CyberGuard() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [isValid, setIsValid] = useState(null);
+  const cardRef = useRef(null);
+  //useTilt(cardRef);
 
   const validateInput = useCallback(
     debounce((value, type) => {
@@ -59,24 +62,25 @@ function CyberGuard() {
 
   return (
     <motion.section
+      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="card flex flex-col gap-8 items-center w-full bg-white p-8 rounded-lg shadow-md"
+      className="card flex flex-col gap-8 items-center w-full bg-[#000000] p-8 rounded-lg shadow-md"
     >
-      <ShieldCheck size={40} className="text-[#00c4b4]" />
-      <h2 className="text-3xl font-bold text-[#1f2a44]">CyberGuard Scanner</h2>
-      <p className="text-center text-[#6b7280] max-w-md">Scan URLs, files, or more with advanced AI for ultimate protection.</p>
+      <ShieldCheck size={40} className="text-[#ffffff]" />
+      <h2 className="text-3xl font-bold text-[#ffffff] animated-text">CyberGuard Scanner</h2>
+      <p className="text-center text-[#cccccc] max-w-md animated-text">Scan URLs, files, or more with advanced AI for ultimate protection.</p>
       <div className="flex space-x-4">
         <button
           onClick={() => setInputType('scan')}
-          className={`btn ${inputType === 'scan' ? 'btn-primary' : 'btn-secondary'}`}
+          className={`btn-neu ${inputType === 'scan' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
         >
           Scan Input
         </button>
         <button
           onClick={() => setInputType('file')}
-          className={`btn ${inputType === 'file' ? 'btn-primary' : 'btn-secondary'}`}
+          className={`btn-neu ${inputType === 'file' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
         >
           <FileText size={16} className="mr-2 inline" /> Scan File
         </button>
@@ -91,7 +95,7 @@ function CyberGuard() {
               validateInput(e.target.value, 'scan');
             }}
             placeholder="Enter URL, domain, hash, or IP"
-            className="input w-full p-3 border border-[#e2e8f0] rounded-md text-[#1f2a44] placeholder-[#6b7280] focus:border-[#00c4b4] focus:ring-2 focus:ring-[#00c4b4]/50"
+            className="input w-full p-3 border border-[#666666] rounded-md text-[#ffffff] placeholder-[#cccccc] focus:border-[#ffffff] focus:ring-2 focus:ring-[#ffffff]/50"
             disabled={loading}
           />
         ) : (
@@ -101,18 +105,18 @@ function CyberGuard() {
               setFile(e.target.files[0]);
               validateInput(e.target.files[0], 'file');
             }}
-            className="input w-full p-3 border border-[#e2e8f0] rounded-md text-[#1f2a44] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#00c4b4] file:text-white hover:file:bg-[#00a89a]"
+            className="input w-full p-3 border border-[#666666] rounded-md text-[#ffffff] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ffffff] file:text-[#000000] hover:file:bg-[#cccccc]"
             disabled={loading}
           />
         )}
         <button
           type="submit"
           disabled={loading || !isValid}
-          className={`btn btn-primary w-full ${loading || !isValid ? 'bg-[#d1d5db] cursor-not-allowed' : 'bg-[#00c4b4] hover:bg-[#00a89a]'} text-white`}
+          className={`btn-neu btn-neu-primary w-full ${loading || !isValid ? 'bg-[#666666] cursor-not-allowed' : ''} text-[#000000] animated-text`}
         >
           {loading ? (
             <span className="flex items-center justify-center">
-              <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+              <svg className="animate-spin h-5 w-5 mr-2 text-[#000000]" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
               </svg>
@@ -127,7 +131,7 @@ function CyberGuard() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="mt-4 text-red-500 font-medium text-center"
+          className="mt-4 text-[#ffffff] font-medium text-center animated-text"
         >
           {error}
         </motion.p>

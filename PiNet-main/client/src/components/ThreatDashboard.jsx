@@ -54,7 +54,7 @@ function ThreatDashboard() {
     labels: ['Safe', 'At Risk'],
     datasets: [{
       data: [safeScans, unsafeScans],
-      backgroundColor: ['#00c4b4', '#ef4444'],
+      backgroundColor: ['#00d4c4', '#ef4444'],
       borderWidth: 0,
     }],
   };
@@ -89,27 +89,27 @@ function ThreatDashboard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="card flex flex-col gap-6 items-center w-full bg-white p-6 rounded-lg shadow-md" // Removed max-w-4xl
+      className="card flex flex-col gap-6 items-center w-full bg-[#1a202c] p-6 rounded-lg shadow-md"
     >
       <div className="flex items-center gap-2">
-        <Shield size={32} className="text-[#00c4b4]" />
-        <h2 className="text-2xl font-bold text-[#1f2a44]">Threat Snapshot</h2>
+        <Shield size={32} className="text-[#00d4c4]" />
+        <h2 className="text-2xl font-bold text-[#e5e7eb] animated-text">Threat Snapshot</h2>
       </div>
-      <p className="text-sm text-[#6b7280] text-center">Your scan history at a glance.</p>
+      <p className="text-sm text-[#b0b8c9] text-center animated-text">Your scan history at a glance.</p>
 
       {loading ? (
-        <p className="text-[#6b7280]">Loading snapshot...</p>
+        <p className="text-[#b0b8c9] animated-text">Loading snapshot...</p>
       ) : error ? (
-        <p className="text-red-500">{error}</p>
+        <p className="text-[#ef4444] animated-text">{error}</p>
       ) : totalScans === 0 ? (
-        <p className="text-[#6b7280]">No scan history available.</p>
+        <p className="text-[#b0b8c9] animated-text">No scan history available.</p>
       ) : (
         <>
           <div className="w-full flex justify-end">
             <select
               value={filterSort}
               onChange={(e) => setFilterSort(e.target.value)}
-              className="text-sm p-2 border border-[#e2e8f0] rounded-md bg-white text-[#1f2a44] focus:outline-none focus:ring-2 focus:ring-[#00c4b4] hover:bg-[#f5f7fa] transition-colors"
+              className="text-sm p-2 border border-[#4a5568] rounded-md bg-[#2d3748] text-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#00d4c4] hover:bg-[#4a5568] transition-colors animated-text"
             >
               <optgroup label="All Types">
                 <option value="all-newest">All - Newest First</option>
@@ -148,61 +148,61 @@ function ThreatDashboard() {
             <motion.div
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
-              className="flex flex-col items-center p-4 bg-[#f5f7fa] rounded-md"
+              className="flex flex-col items-center p-4 bg-[#4a5568] rounded-md"
             >
-              <h3 className="text-lg font-semibold text-[#1f2a44] mb-2">Scan Overview</h3>
+              <h3 className="text-lg font-semibold text-[#e5e7eb] mb-2 animated-text">Scan Overview</h3>
               <div className="flex items-center justify-center w-24 h-24">
                 <Pie data={riskData} options={riskOptions} />
               </div>
-              <p className="mt-2 text-sm text-[#6b7280]">
-                <span className="text-[#00c4b4] font-bold">{safeScans}</span> Safe
+              <p className="mt-2 text-sm text-[#b0b8c9] animated-text">
+                <span className="text-[#00d4c4] font-bold">{safeScans}</span> Safe
               </p>
-              <p className="text-sm text-[#6b7280]">
+              <p className="text-sm text-[#b0b8c9] animated-text">
                 <span className="text-[#ef4444] font-bold">{unsafeScans}</span> At Risk
               </p>
-              <p className="mt-1 text-xs text-[#6b7280]">{unsafePercentage}% Risk Rate</p>
+              <p className="mt-1 text-xs text-[#b0b8c9] animated-text">{unsafePercentage}% Risk Rate</p>
             </motion.div>
 
             <motion.div
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
-              className="flex flex-col p-4 bg-[#f5f7fa] rounded-md"
+              className="flex flex-col p-4 bg-[#4a5568] rounded-md"
             >
-              <h3 className="text-lg font-semibold text-[#1f2a44] mb-2 flex items-center">
+              <h3 className="text-lg font-semibold text-[#e5e7eb] mb-2 flex items-center animated-text">
                 <AlertTriangle className="mr-2 text-[#ef4444]" size={20} /> Top Risks
               </h3>
               {riskyInputs.length > 0 ? (
                 <ul className="space-y-2 text-sm">
                   {riskyInputs.map(item => (
-                    <li key={item.id} className="flex justify-between items-center">
-                      <span className="text-[#6b7280] truncate max-w-[200px]">{item.input || 'N/A'}</span>
+                    <li key={item.id} className="flex justify-between items-center animated-text">
+                      <span className="text-[#b0b8c9] truncate max-w-[200px]">{item.input || 'N/A'}</span>
                       <span className="text-[#ef4444] font-semibold">{item.safety_score || 'N/A'}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-[#6b7280]">No risks detected.</p>
+                <p className="text-sm text-[#b0b8c9] animated-text">No risks detected.</p>
               )}
             </motion.div>
 
             <motion.div
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
-              className="flex flex-col p-4 bg-[#f5f7fa] rounded-md"
+              className="flex flex-col p-4 bg-[#4a5568] rounded-md"
             >
-              <h3 className="text-lg font-semibold text-[#1f2a44] mb-2 flex items-center">
+              <h3 className="text-lg font-semibold text-[#e5e7eb] mb-2 flex items-center animated-text">
                 <BarChart2 className="mr-2" size={20} /> Quick Insights
               </h3>
-              <p className="text-sm text-[#6b7280]">
+              <p className="text-sm text-[#b0b8c9] animated-text">
                 <strong>Total Scans:</strong> {totalScans}
               </p>
-              <p className="text-sm text-[#6b7280]">
+              <p className="text-sm text-[#b0b8c9] animated-text">
                 <strong>Most Scanned:</strong> {topType[0]} ({topType[1]})
               </p>
-              <p className="text-sm text-[#6b7280] mt-2">
+              <p className="text-sm text-[#b0b8c9] mt-2 animated-text">
                 <strong>Recent Activity:</strong>
               </p>
-              <p className="text-xs text-[#6b7280] truncate">
+              <p className="text-xs text-[#b0b8c9] truncate animated-text">
                 {latestScan.input} - {new Date(latestScan.created_at).toLocaleDateString() || 'N/A'}
               </p>
             </motion.div>
