@@ -1,10 +1,9 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, FileText } from 'lucide-react';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 import AnalysisResult from './AnalysisResult';
-//import useTilt from '../useTilt';
 
 function CyberGuard() {
   const [inputType, setInputType] = useState('scan');
@@ -14,8 +13,6 @@ function CyberGuard() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [isValid, setIsValid] = useState(null);
-  const cardRef = useRef(null);
-  //useTilt(cardRef);
 
   const validateInput = useCallback(
     debounce((value, type) => {
@@ -62,7 +59,6 @@ function CyberGuard() {
 
   return (
     <motion.section
-      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}

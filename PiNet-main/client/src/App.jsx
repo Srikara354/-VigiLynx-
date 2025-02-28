@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Moon, Sun } from 'lucide-react';
+import { ShieldCheck, Sun } from 'lucide-react';
 import Particles from "@tsparticles/react";
 import { loadFull } from 'tsparticles';
 import CyberGuard from './components/CyberGuard';
@@ -12,16 +12,6 @@ import ThreatDashboard from './components/ThreatDashboard';
 function App() {
   const [view, setView] = useState('cyberguard');
   const [isDarkMode] = useState(true); // Locked to dark mode
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e) => {
-    setCursorPos({ x: e.clientX, y: e.clientY });
-  };
-
-  useEffect(() => {
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   const particlesInit = async (main) => {
     await loadFull(main);
@@ -30,8 +20,8 @@ function App() {
   const particlesOptions = {
     particles: {
       number: { value: 80, density: { enable: true, value_area: 800 } },
-      color: { value: '#ffffff' }, // White particles
-      shape: { type: 'circle' }, // Simpler shape for B&W
+      color: { value: '#ffffff' },
+      shape: { type: 'circle' },
       opacity: { value: 0.5, random: true },
       size: { value: 2, random: true },
       move: {
@@ -66,7 +56,6 @@ function App() {
         options={particlesOptions}
         className="absolute inset-0 z-0"
       />
-      <div className="custom-cursor" style={{ left: cursorPos.x, top: cursorPos.y }}></div>
       <motion.header
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -111,7 +100,7 @@ function App() {
         >
           <h2 className="text-5xl font-extrabold text-[#ffffff] drop-shadow-md animated-text">Secure Your Digital World</h2>
           <p className="text-lg text-[#cccccc] max-w-2xl animated-text">
-            Advanced AI-powered scanning and parental monitoring to keep you safe online.
+            <span className="centered-tagline">Advanced AI-powered scanning and parental monitoring to keep you safe online.</span>
           </p>
         </motion.section>
 

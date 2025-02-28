@@ -40,19 +40,6 @@
   z-index: 0;
 }
 
-/* Custom Cursor */
-.custom-cursor {
-  position: fixed;
-  width: 20px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.5); /* White cursor */
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
 /* Base Styles */
 * {
   margin: 0;
@@ -79,33 +66,20 @@ body {
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 12px var(--card-shadow);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
   position: relative;
   transform-style: preserve-3d;
+  border: 2px solid transparent;
 }
 
 .card:hover {
   box-shadow: 0 8px 20px var(--card-shadow);
   transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateZ(10px);
+  border: 2px solid #ffffff;
 }
 
 .card::before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-  border-radius: 16px;
-  background: linear-gradient(45deg, #ffffff, #cccccc, #ffffff); /* White to gray gradient */
-  opacity: 0;
-  z-index: -1;
-  transition: opacity 0.3s ease;
-  filter: blur(8px);
-}
-
-.card:hover::before {
-  opacity: 0.8;
+  content: none;
 }
 
 .card * {
@@ -250,5 +224,14 @@ body {
 
 .animated-text:hover {
   transform: scale(1.05);
-  color: #cccccc; /* Light gray on hover */
+  color: #cccccc;
+}
+/* Centered Tagline Styling */
+.tagline {
+  font-size: 1.5rem; /* Slightly larger for prominence */
+  font-weight: 500;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Subtle glow for readability */
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+  border-radius: 8px;
 }
