@@ -18,7 +18,8 @@ function ParentalMonitor() {
         setHistory(response.data);
         setFilteredHistory(response.data);
       } catch (err) {
-        setError('Failed to fetch history');
+        setError('Failed to fetch scan history');
+        console.error('Fetch error:', err);
       } finally {
         setLoading(false);
       }
@@ -42,11 +43,12 @@ function ParentalMonitor() {
 
   const exportToCSV = () => {
     const csvRows = [
-      ['Input', 'Type', 'Safety', 'Date'],
+      ['Input', 'Type', 'Safety', 'Safety Score', 'Date'],
       ...filteredHistory.map(item => [
         `"${item.input}"`,
         item.type,
         item.is_safe ? 'Safe' : 'Unsafe',
+        item.safety_score,
         new Date(item.created_at).toLocaleString(),
       ]),
     ].map(row => row.join(',')).join('\n');
@@ -65,16 +67,16 @@ function ParentalMonitor() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="card flex flex-col gap-8 items-center w-full bg-[#1a202c] p-8 rounded-lg shadow-md"
+      className="card flex flex-col gap-8 items-center w-full bg-[#000000] p-8 rounded-lg shadow-md"
     >
-      <Lock size={40} className="text-[#00d4c4]" />
-      <h2 className="text-3xl font-bold text-[#e5e7eb] animated-text">Parental Monitor</h2>
-      <p className="text-center text-[#b0b8c9] max-w-md animated-text">Keep track of scans and ensure digital safety with ease.</p>
+      <Lock size={40} className="text-[#ffffff]" />
+      <h2 className="text-3xl font-bold text-[#ffffff] animated-text">Parental Monitor</h2>
+      <p className="text-center text-[#cccccc] max-w-md animated-text">Keep track of scans and ensure digital safety with ease.</p>
       <div className="flex space-x-4 w-full max-w-md">
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="input p-3 border border-[#4a5568] rounded-md text-[#e5e7eb] bg-[#2d3748] focus:border-[#00d4c4] focus:ring-2 focus:ring-[#00d4c4]/50 animated-text"
+          className="input p-3 border border-[#666666] rounded-md text-[#ffffff] bg-[#000000] focus:border-[#ffffff] focus:ring-2 focus:ring-[#ffffff]/50 animated-text"
         >
           <option value="all">All Types</option>
           <option value="url">URL</option>
@@ -85,7 +87,7 @@ function ParentalMonitor() {
         <select
           value={safetyFilter}
           onChange={(e) => setSafetyFilter(e.target.value)}
-          className="input p-3 border border-[#4a5568] rounded-md text-[#e5e7eb] bg-[#2d3748] focus:border-[#00d4c4] focus:ring-2 focus:ring-[#00d4c4]/50 animated-text"
+          className="input p-3 border border-[#666666] rounded-md text-[#ffffff] bg-[#000000] focus:border-[#ffffff] focus:ring-2 focus:ring-[#ffffff]/50 animated-text"
         >
           <option value="all">All Safety</option>
           <option value="safe">Safe</option>
@@ -93,35 +95,38 @@ function ParentalMonitor() {
         </select>
         <button
           onClick={exportToCSV}
-          className="btn-neu btn-neu-primary bg-[#00d4c4] hover:bg-[#00b4a4] text-[#ffffff] transition-colors animated-text"
+          className="btn-neu btn-neu-primary bg-[#ffffff] hover:bg-[#cccccc] text-[#000000] transition-colors animated-text"
         >
           Export CSV
         </button>
       </div>
       {loading ? (
-        <p className="text-[#b0b8c9] animated-text">Loading history...</p>
+        <p className="text-[#cccccc] animated-text">Loading history...</p>
       ) : error ? (
-        <p className="text-[#ef4444] animated-text">{error}</p>
+        <p className="text-[#ffffff] animated-text">{error}</p>
       ) : filteredHistory.length > 0 ? (
         <div className="w-full space-y-6">
           {filteredHistory.map((item) => (
-            <div key={item.id} className="output-box p-6 bg-[#4a5568] rounded-md">
-              <p className="animated-text"><strong className="text-[#e5e7eb]">Input:</strong> {item.input}</p>
-              <p className="animated-text"><strong className="text-[#e5e7eb]">Type:</strong> {item.type}</p>
+            <div key={item.id} className="output-box p-6 bg-[#666666] rounded-md">
+              <p className="animated-text"><strong className="text-[#ffffff]">Input:</strong> {item.input}</p>
+              <p className="animated-text"><strong className="text-[#ffffff]">Type:</strong> {item.type}</p>
               <p className="animated-text">
-                <strong className="text-[#e5e7eb]">Status:</strong>{' '}
-                <span className={item.is_safe ? 'text-[#00d4c4]' : 'text-[#ef4444]'}>
+                <strong className="text-[#ffffff]">Status:</strong>{' '}
+                <span className={item.is_safe ? 'text-[#00c4b4]' : 'text-[#ef4444]'}>
                   {item.is_safe ? 'Safe' : 'Unsafe'}
                 </span>
               </p>
-              <p className="text-sm text-[#b0b8c9] animated-text">
+              <p className="text-sm text-[#cccccc] animated-text">
+                <strong>Safety Score:</strong> {item.safety_score}/100
+              </p>
+              <p className="text-sm text-[#cccccc] animated-text">
                 <strong>Date:</strong> {new Date(item.created_at).toLocaleString()}
               </p>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-[#b0b8c9] animated-text">No matching scan history available.</p>
+        <p className="text-[#cccccc] animated-text">No matching scan history available.</p>
       )}
     </motion.section>
   );

@@ -4,6 +4,7 @@ import { ShieldCheck, FileText } from 'lucide-react';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 import AnalysisResult from './AnalysisResult';
+import { supabase } from '../../supabase';
 
 function CyberGuard() {
   const [inputType, setInputType] = useState('scan');
@@ -41,17 +42,25 @@ function CyberGuard() {
     setResult(null);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
       let response;
       if (inputType === 'scan') {
-        response = await axios.get(`http://localhost:5000/api/scan`, { params: { input } });
+        response = await axios.get(`http://localhost:5000/api/scan`, {
+          params: { input },
+          headers,
+        });
       } else if (inputType === 'file') {
         const formData = new FormData();
         formData.append('file', file);
-        response = await axios.post(`http://localhost:5000/api/scan-file`, formData);
+        response = await axios.post(`http://localhost:5000/api/scan-file`, formData, { headers });
       }
       setResult(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || `Failed to analyze ${inputType}. Details: ${err.response?.data?.details?.message || 'Unknown error'}`);
+      setError(err.response?.data?.error || `Failed to analyze ${inputType}. Please try again.`);
+      console.error('Analysis error:', err);
     } finally {
       setLoading(false);
     }
