@@ -2,13 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Aileron font */
-@font-face {
-  font-family: 'Aileron';
-  src: url('https://fonts.cdnfonts.com/s/14772/Aileron-Regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-}
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
 
 /* Root Variables for Black and White Colorway */
 :root {
@@ -25,12 +23,26 @@
   --highlight-bg: #666666; /* Gray for highlights */
 }
 
-/* Background */
+/* Background with Subtle Glow */
 .starry-bg {
-  background: var(--background); /* Plain black, removing starry effect */
+  background: var(--background);
+  position: relative;
+  overflow: hidden;
 }
 
-/* Particle Canvas - Adjusted for B&W */
+.starry-bg::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+/* Particle Canvas */
 #tsparticles {
   position: absolute;
   top: 0;
@@ -48,7 +60,8 @@
 }
 
 body {
-  font-family: 'Aileron', sans-serif;
+  font-family: 'Open Sans', sans-serif; /* Body text */
+  font-weight: 400;
   line-height: 1.6;
   background: var(--background);
   color: var(--text-primary);
@@ -95,14 +108,17 @@ body {
   background: var(--btn-bg);
   box-shadow: 6px 6px 12px rgba(255, 255, 255, 0.1), -6px -6px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #666666;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   cursor: pointer;
   color: var(--text-primary);
+  font-family: 'Fira Code', monospace; /* Techy flair */
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-neu:hover:not(:disabled) {
   box-shadow: 4px 4px 8px rgba(255, 255, 255, 0.15), -4px -4px 8px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.05);
 }
 
 .btn-neu:active:not(:disabled) {
@@ -135,24 +151,6 @@ body {
   cursor: not-allowed;
 }
 
-.btn-neu::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.3s ease, height 0.3s ease;
-}
-
-.btn-neu:active::after {
-  width: 200%;
-  height: 200%;
-}
-
 /* Input Styles */
 .input {
   width: 100%;
@@ -176,6 +174,7 @@ body {
   padding: 1.25rem;
   border-radius: 8px;
   font-size: 0.9rem;
+  font-family: 'Fira Code', monospace; /* Techy flair */
 }
 
 .highlight-box {
@@ -184,6 +183,7 @@ body {
   border-left: 4px solid #ffffff;
   border-radius: 8px;
   font-size: 0.9rem;
+  font-family: 'Fira Code', monospace; /* Techy flair */
 }
 
 /* Glass Header */
@@ -195,43 +195,106 @@ body {
   box-shadow: 0 4px 30px rgba(255, 255, 255, 0.1);
 }
 
-/* VIGILYNX Hover Effect */
-.vigilynx-text {
+/* VIGILYNX Multicolor Hover Effect */
+.vigilynx-text-multicolor {
   display: inline-block;
-  background: linear-gradient(90deg, #ffffff, #cccccc, #ffffff);
-  background-size: 200% 100%;
-  color: transparent;
+  color: #ffffff; /* White base color */
+  background: linear-gradient(90deg, #ff0000, #ff7700, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+  background-size: 800% 100%;
   -webkit-background-clip: text;
   background-clip: text;
-  transition: all 0.3s ease;
+  transition: background-position 0.5s ease;
 }
 
-.vigilynx-text:hover {
+.vigilynx-text-multicolor:hover {
+  color: transparent; /* Reveal gradient on hover */
   background-position: 100% 0;
-  animation: gradientShift 1.5s infinite;
+  animation: rainbowShift 3s infinite;
 }
 
-@keyframes gradientShift {
-  0% { background-position: 100% 0; }
-  50% { background-position: 0% 0; }
-  100% { background-position: 100% 0; }
+@keyframes rainbowShift {
+  0% { background-position: 0% 0; }
+  50% { background-position: 100% 0; }
+  100% { background-position: 0% 0; }
 }
 
 /* Animated Text Effect */
 .animated-text {
-  transition: transform 0.3s ease, color 0.3s ease;
+  transition: color 0.3s ease; /* Keep color transition, remove transform */
 }
 
-.animated-text:hover {
+/* Keep hover effect only for header nav buttons and Vigilynx */
+.glass-header .animated-text:hover,
+.vigilynx-text-multicolor:hover {
   transform: scale(1.05);
-  color: #cccccc;
 }
-/* Centered Tagline Styling */
-.tagline {
-  font-size: 1.5rem; /* Slightly larger for prominence */
-  font-weight: 500;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Subtle glow for readability */
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
-  border-radius: 8px;
+
+/* Ensure no movement elsewhere */
+*:not(.glass-header) .animated-text:hover {
+  transform: none;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; /* Bold and modern */
+}
+
+/* Preloader Signature Text */
+.signature-text {
+  font-family: 'Dancing Script', cursive;
+  font-size: 20rem; /* Large size, ~40% of screen height */
+  font-weight: 100; /* Significantly reduced font weight */
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  color: #d3d3d3; /* Lighter shade of gray */
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Preloader VIGILYNX Text */
+.vigilynx-preload {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900; /* Much greater weight than VX */
+  font-size: 2rem; /* Adjusted for visibility */
+  color: #ffffff;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  letter-spacing: 0.5rem; /* Spread across the line */
+  z-index: 2;
+  -webkit-text-stroke: 1px #000000; /* Black border */
+  text-stroke: 1px #000000;
+}
+
+/* Center Line for VX */
+.center-line {
+  position: absolute;
+  width: 100%; /* Exact length of VIGILYNX text */
+  height: 0.5px; /* Smaller line */
+  background: rgba(255, 255, 255, 0.8);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+/* Neon Glow Effect for Main Heading */
+/* Neon Glow Effect for Main Heading */
+.animated-text.main-heading {
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.4), 0 0 10px rgba(255, 255, 255, 0.3), 0 0 15px rgba(255, 255, 255, 0.2);
+  animation: neonPulse 2s infinite alternate;
+}
+
+@keyframes neonPulse {
+  0% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.4), 0 0 10px rgba(255, 255, 255, 0.3), 0 0 15px rgba(255, 255, 255, 0.2);
+  }
+  100% {
+    text-shadow: 0 0 7px rgba(255, 255, 255, 0.5), 0 0 12px rgba(255, 255, 255, 0.4), 0 0 17px rgba(255, 255, 255, 0.3);
+  }
 }

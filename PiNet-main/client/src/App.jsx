@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Sun } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import Particles from "@tsparticles/react";
 import { loadFull } from 'tsparticles';
 import CyberGuard from './components/CyberGuard';
@@ -11,7 +11,12 @@ import ThreatDashboard from './components/ThreatDashboard';
 
 function App() {
   const [view, setView] = useState('cyberguard');
-  const [isDarkMode] = useState(true); // Locked to dark mode
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000); // 2-second preloader
+    return () => clearTimeout(timer);
+  }, []);
 
   const particlesInit = async (main) => {
     await loadFull(main);
@@ -49,66 +54,112 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen dark starry-bg flex flex-col relative">
+    <div className="min-h-screen starry-bg flex flex-col relative">
       <Particles
         id="tsparticles"
         init={particlesInit}
         options={particlesOptions}
         className="absolute inset-0 z-0"
       />
+      {isLoading && (
+        <motion.div
+          className="fixed inset-0 flex items-center justify-center bg-[#000000] z-50"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+        >
+          <motion.span
+            className="signature-text relative"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+          >
+            VX
+            <span className="center-line">
+              <span className="vigilynx-preload">VIGILYNX</span>
+            </span>
+          </motion.span>
+        </motion.div>
+      )}
       <motion.header
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8 }}
+        initial={{ scale: 0, y: -50 }}
+        animate={{ scale: isLoading ? 0 : 1, y: isLoading ? -50 : 0 }}
+        transition={{ duration: 0.8, ease: 'easeOut', delay: isLoading ? 0 : 0.2 }}
         className="w-full py-6 px-8 glass-header sticky top-0 z-20"
       >
         <div className="container mx-auto max-w-6xl flex justify-between items-center">
           <h1 className="text-3xl font-bold text-[#ffffff] flex items-center animated-text">
-            <ShieldCheck className="mr-2 w-8 h-8" /> <span className="vigilynx-text">VIGILYNX</span>
+            <ShieldCheck className="mr-2 w-8 h-8" />
+            <span className="vigilynx-text-multicolor">VIGILYNX</span>
           </h1>
           <div className="flex items-center space-x-4">
             <nav className="flex space-x-4">
-              <button onClick={() => setView('cyberguard')} className={`btn-neu ${view === 'cyberguard' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}>
+              <motion.button
+                onClick={() => setView('cyberguard')}
+                className={`btn-neu ${view === 'cyberguard' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
+                initial={{ scale: 0 }}
+                animate={{ scale: isLoading ? 0 : 1 }}
+                transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.4 }}
+              >
                 CyberGuard
-              </button>
-              <button onClick={() => setView('parental')} className={`btn-neu ${view === 'parental' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}>
+              </motion.button>
+              <motion.button
+                onClick={() => setView('parental')}
+                className={`btn-neu ${view === 'parental' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
+                initial={{ scale: 0 }}
+                animate={{ scale: isLoading ? 0 : 1 }}
+                transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.5 }}
+              >
                 Parental Monitor
-              </button>
-              <button onClick={() => setView('news')} className={`btn-neu ${view === 'news' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}>
+              </motion.button>
+              <motion.button
+                onClick={() => setView('news')}
+                className={`btn-neu ${view === 'news' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
+                initial={{ scale: 0 }}
+                animate={{ scale: isLoading ? 0 : 1 }}
+                transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.6 }}
+              >
                 Cybersecurity News
-              </button>
-              <button onClick={() => setView('community')} className={`btn-neu ${view === 'community' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}>
+              </motion.button>
+              <motion.button
+                onClick={() => setView('community')}
+                className={`btn-neu ${view === 'community' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
+                initial={{ scale: 0 }}
+                animate={{ scale: isLoading ? 0 : 1 }}
+                transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.7 }}
+              >
                 Community Post
-              </button>
-              <button onClick={() => setView('threat')} className={`btn-neu ${view === 'threat' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}>
+              </motion.button>
+              <motion.button
+                onClick={() => setView('threat')}
+                className={`btn-neu ${view === 'threat' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
+                initial={{ scale: 0 }}
+                animate={{ scale: isLoading ? 0 : 1 }}
+                transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.8 }}
+              >
                 Threat Dashboard
-              </button>
+              </motion.button>
             </nav>
-            <button className="btn-neu p-2 rounded-full animated-text" aria-label="Dark Mode Enabled">
-              <Sun size={20} className="text-[#ffffff]" />
-            </button>
           </div>
         </div>
       </motion.header>
 
       <main className="container mx-auto max-w-6xl flex-1 py-12 flex flex-col items-center relative z-10">
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          initial={{ scale: 0, y: 20 }}
+          animate={{ scale: isLoading ? 0 : 1, y: isLoading ? 20 : 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut', delay: isLoading ? 0 : 0.4 }}
           className="text-center py-12 space-y-6 w-full"
         >
-          <h2 className="text-5xl font-extrabold text-[#ffffff] drop-shadow-md animated-text">Secure Your Digital World</h2>
-          <p className="text-lg text-[#cccccc] max-w-2xl animated-text">
-            <span className="centered-tagline">Advanced AI-powered scanning and parental monitoring to keep you safe online.</span>
-          </p>
-        </motion.section>
+<h2 className="text-5xl font-extrabold text-[#ffffff] drop-shadow-md animated-text main-heading">One Click, and Boom! Nah, Not on Our Watch.</h2>        </motion.section>
 
         <motion.div
           key={view}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={{ scale: 0, y: 20 }}
+          animate={{ scale: isLoading ? 0 : 1, y: isLoading ? 20 : 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.6 }}
           className="w-full"
         >
           {view === 'cyberguard' && <CyberGuard />}

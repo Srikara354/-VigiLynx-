@@ -207,13 +207,13 @@ function CommunityPosts() {
       className="card flex flex-col gap-8 items-center w-full bg-white p-8 rounded-lg shadow-md"
     >
       <MessageSquare size={40} className="text-[#00c4b4]" />
-      <h2 className="text-3xl font-bold text-[#1f2a44]">Community Posts</h2>
-      <p className="text-center text-[#6b7280] max-w-md">Discuss cybersecurity, share insights, and collaborate with others.</p>
+      <h2 className="text-3xl font-bold text-[#000000]">Community Posts</h2>
+      <p className="text-center text-[#000000] max-w-md">Discuss cybersecurity, share insights, and collaborate with others.</p>
 
       {loading ? (
-        <p className="text-[#6b7280] animate-pulse">Loading posts...</p>
+        <p className="text-[#000000] animate-pulse">Loading posts...</p>
       ) : error ? (
-        <p className="text-red-500">{error}</p>
+        <p className="text-[#000000]">{error}</p>
       ) : (
         <div className="w-full space-y-8">
           {/* Create Post Form */}
@@ -222,24 +222,24 @@ function CommunityPosts() {
             animate={{ opacity: 1 }}
             className="p-6 bg-[#f5f7fa] rounded-md border border-[#e2e8f0]"
           >
-            <h3 className="text-lg font-semibold text-[#1f2a44] mb-4">Create a Post</h3>
+            <h3 className="text-lg font-semibold text-[#000000] mb-4">Create a Post</h3>
             <input
               type="text"
               value={newPostTitle}
               onChange={(e) => setNewPostTitle(e.target.value)}
               placeholder="Post Title"
-              className="input w-full p-3 border border-[#e2e8f0] rounded-md text-[#1f2a44] placeholder-[#6b7280] focus:border-[#00c4b4] focus:ring-2 focus:ring-[#00c4b4]/50 mb-4"
+              className="input w-full p-3 border border-[#e2e8f0] rounded-md text-[#000000] placeholder-[#666666] focus:border-[#00c4b4] focus:ring-2 focus:ring-[#00c4b4]/50 mb-4"
             />
             <textarea
               value={newPostContent}
               onChange={(e) => setNewPostContent(e.target.value)}
               placeholder="Share your thoughts on URLs, cybersecurity, etc..."
-              className="input w-full p-3 border border-[#e2e8f0] rounded-md text-[#1f2a44] placeholder-[#6b7280] focus:border-[#00c4b4] focus:ring-2 focus:ring-[#00c4b4]/50"
+              className="input w-full p-3 border border-[#e2e8f0] rounded-md text-[#000000] placeholder-[#666666] focus:border-[#00c4b4] focus:ring-2 focus:ring-[#00c4b4]/50"
               rows={4}
             />
             <button
               onClick={createPost}
-              className="btn btn-primary mt-4 w-full bg-[#00c4b4] hover:bg-[#00a89a] text-white flex items-center justify-center gap-2 px-4 py-2 rounded"
+              className="btn btn-primary mt-4 w-full bg-[#00c4b4] hover:bg-[#00a89a] text-[#ffffff] flex items-center justify-center gap-2 px-4 py-2 rounded"
             >
               <Send size={16} /> Post
             </button>
@@ -255,14 +255,14 @@ function CommunityPosts() {
                 transition={{ duration: 0.3 }}
                 className="p-4 bg-white rounded-md shadow-sm border border-[#e2e8f0] hover:shadow-md transition-shadow"
               >
-                <h4 className="text-lg font-semibold text-[#1f2a44]">{post.title}</h4>
-                <p className="text-sm text-[#6b7280] mt-2">{post.content}</p>
-                <div className="flex items-center gap-4 mt-4 text-xs text-[#6b7280]">
+                <h4 className="text-lg font-semibold text-[#000000]">{post.title}</h4>
+                <p className="text-sm text-[#000000] mt-2">{post.content}</p>
+                <div className="flex items-center gap-4 mt-4 text-xs text-[#000000]">
                   <span>Posted by {post.user_name} on {new Date(post.created_at).toLocaleString()}</span>
                   <button
                     onClick={() => handleLike(post.id)}
                     className={`flex items-center gap-1 transition-colors ${
-                      likedPosts.has(post.id) ? 'text-[#00c4b4]' : 'text-[#6b7280] hover:text-[#00a89a]'
+                      likedPosts.has(post.id) ? 'text-[#00c4b4]' : 'text-[#000000] hover:text-[#00a89a]'
                     }`}
                   >
                     <ThumbsUp size={16} className={likedPosts.has(post.id) ? 'fill-current' : ''} />
@@ -270,7 +270,7 @@ function CommunityPosts() {
                   </button>
                   <button
                     onClick={() => handleAIOverview(post.id, post.content)}
-                    className="flex items-center gap-1 text-[#6b7280] hover:text-[#00c4b4] transition-colors"
+                    className="flex items-center gap-1 text-[#000000] hover:text-[#00c4b4] transition-colors"
                   >
                     <Info size={16} /> AI Overview
                   </button>
@@ -281,7 +281,7 @@ function CommunityPosts() {
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="mt-4 p-4 bg-gray-50 rounded-md text-sm text-gray-700"
+                    className="mt-4 p-4 bg-gray-50 rounded-md text-sm text-[#000000]"
                   >
                     {overviewLoading ? (
                       <p className="animate-pulse">Generating overview...</p>

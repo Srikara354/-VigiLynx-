@@ -2,7 +2,7 @@
 .news-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #e0e7ff, #f3e8ff);
-  color: #1f2937;
+  color: #000000; /* Changed to black */
   font-family: "Segoe UI", Arial, sans-serif;
   padding-bottom: 60px;
 }
@@ -18,14 +18,14 @@
 .header h1 {
   font-size: 48px;
   font-weight: 700;
-  color: #1e3a8a;
+  color: #000000; /* Changed to black */
   margin: 0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .header p {
   font-size: 18px;
-  color: #6b7280;
+  color: #000000; /* Changed to black */
   margin: 10px 0 0;
 }
 
@@ -78,16 +78,16 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  color: #1f2937;
+  color: #000000; /* Changed to black */
 }
 
 .content h2:hover {
-  color: #2563eb;
+  color: #2563eb; /* Blue on hover for contrast */
 }
 
 .summary {
   font-size: 15px;
-  color: #4b5563;
+  color: #000000; /* Changed to black */
   margin: 0 0 15px;
   line-height: 1.6;
   display: -webkit-box;
@@ -104,12 +104,12 @@
 
 .date {
   font-size: 13px;
-  color: #9ca3af;
+  color: #000000; /* Changed to black */
 }
 
 .meta a {
   font-size: 14px;
-  color: #2563eb;
+  color: #000000; /* Changed to black */
   text-decoration: none;
   font-weight: 600;
   padding: 6px 12px;
@@ -135,7 +135,7 @@
 .pagination-btn {
   padding: 8px 16px;
   font-size: 14px;
-  color: #2563eb;
+  color: #000000; /* Changed to black */
   background-color: #fff;
   border: 1px solid #d1d5db;
   border-radius: 6px;
@@ -149,13 +149,13 @@
 }
 
 .pagination-btn:disabled {
-  color: #9ca3af;
+  color: #666666; /* Dark gray for disabled state */
   cursor: not-allowed;
 }
 
 .pagination-btn.active {
   background-color: #2563eb;
-  color: #fff;
+  color: #ffffff; /* Kept white for contrast */
   border-color: #2563eb;
 }
 
@@ -173,7 +173,7 @@
 .footer p {
   margin: 0;
   font-size: 14px;
-  color: #6b7280;
+  color: #000000; /* Changed to black */
 }
 
 /* Loading and Error States */
@@ -188,14 +188,14 @@
 
 .loading-text {
   font-size: 28px;
-  color: #1f2937;
+  color: #000000; /* Changed to black */
   font-weight: 600;
   animation: pulse 1.5s infinite;
 }
 
 .error-text {
   font-size: 24px;
-  color: #dc2626;
+  color: #000000; /* Changed to black */
   font-weight: 500;
 }
 

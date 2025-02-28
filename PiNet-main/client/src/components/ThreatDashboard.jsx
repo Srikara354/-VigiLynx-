@@ -91,10 +91,8 @@ function ThreatDashboard() {
       transition={{ duration: 0.6 }}
       className="card flex flex-col gap-6 items-center w-full bg-[#000000] p-6 rounded-lg shadow-md"
     >
-      <div className="flex items-center gap-2">
-        <Shield size={32} className="text-[#ffffff]" />
-        <h2 className="text-2xl font-bold text-[#ffffff] animated-text">Threat Snapshot</h2>
-      </div>
+      <Shield size={32} className="text-[#ffffff]" />
+      <h2 className="text-2xl font-bold text-[#ffffff] animated-text">Threat Snapshot</h2>
       <p className="text-sm text-[#cccccc] text-center animated-text">Your scan history at a glance.</p>
 
       {loading ? (
