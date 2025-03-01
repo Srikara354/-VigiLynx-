@@ -95,7 +95,7 @@ function ParentalMonitor() {
         </select>
         <button
           onClick={exportToCSV}
-          className="btn-neu btn-neu-primary bg-[#ffffff] hover:bg-[#cccccc] text-[#000000] transition-colors animated-text"
+          className="btn-neu btn-neu-primary w-48 bg-[#ffffff] hover:bg-[#cccccc] text-[#000000] transition-colors animated-text"
         >
           Export CSV
         </button>
