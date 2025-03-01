@@ -28,7 +28,6 @@ function CommunityPosts() {
       setUser(session?.user || null);
 
       try {
-        // Fetch posts
         const { data: postsData, error: postsError } = await supabase
           .from('community_posts')
           .select('*')
@@ -37,7 +36,6 @@ function CommunityPosts() {
 
         setPosts(postsData);
 
-        // Fetch user's liked posts if signed in
         if (session?.user) {
           const { data: likesData, error: likesError } = await supabase
             .from('post_likes')
@@ -100,7 +98,6 @@ function CommunityPosts() {
     const newLikes = isLiked ? post.likes - 1 : post.likes + 1;
     const newLikedPosts = new Set(likedPosts);
 
-    // Optimistic update
     setPosts(posts.map((p) =>
       p.id === postId ? { ...p, likes: newLikes } : p
     ));
@@ -113,7 +110,6 @@ function CommunityPosts() {
 
     try {
       if (isLiked) {
-        // Unlike: Remove from post_likes
         const { error: deleteError } = await supabase
           .from('post_likes')
           .delete()
@@ -121,14 +117,12 @@ function CommunityPosts() {
           .eq('post_id', postId);
         if (deleteError) throw deleteError;
       } else {
-        // Like: Add to post_likes
         const { error: insertError } = await supabase
           .from('post_likes')
           .insert([{ user_id: user.id, post_id: postId }]);
-        if (insertError && insertError.code !== '23505') throw insertError; // Ignore duplicate key error (already liked)
+        if (insertError && insertError.code !== '23505') throw insertError;
       }
 
-      // Update total likes in community_posts
       const { error: updateError } = await supabase
         .from('community_posts')
         .update({ likes: newLikes })
@@ -139,7 +133,6 @@ function CommunityPosts() {
     } catch (err) {
       console.error('Error updating likes in backend:', err.message);
       setError(`Failed to update like: ${err.message}`);
-      // Revert state on failure
       setPosts(posts);
       setLikedPosts(likedPosts);
     }
@@ -204,45 +197,47 @@ function CommunityPosts() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="card flex flex-col gap-8 items-center w-full bg-white p-8 rounded-lg shadow-md"
+      className="card flex flex-col gap-8 items-center w-full bg-[#1a1a1a] p-8 rounded-xl shadow-lg border border-[#00c4b4]/20"
     >
       <MessageSquare size={40} className="text-[#00c4b4]" />
-      <h2 className="text-3xl font-bold text-[#000000]">Community Posts</h2>
-      <p className="text-center text-[#000000] max-w-md">Discuss cybersecurity, share insights, and collaborate with others.</p>
+      <h2 className="text-3xl font-bold text-[#ffffff] text-shadow-md">Community Posts</h2>
+      <p className="text-center text-[#cccccc] max-w-md">Discuss cybersecurity, share insights, and collaborate with others.</p>
 
       {loading ? (
-        <p className="text-[#000000] animate-pulse">Loading posts...</p>
+        <p className="text-[#00c4b4] animate-pulse">Loading posts...</p>
       ) : error ? (
-        <p className="text-[#000000]">{error}</p>
+        <p className="text-[#ff5555]">{error}</p>
       ) : (
         <div className="w-full space-y-8">
           {/* Create Post Form */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="p-6 bg-[#f5f7fa] rounded-md border border-[#e2e8f0]"
+            className="p-6 bg-[#252525] rounded-xl border border-[#00c4b4]/30 shadow-inner"
           >
-            <h3 className="text-lg font-semibold text-[#000000] mb-4">Create a Post</h3>
+            <h3 className="text-xl font-semibold text-[#ffffff] mb-4">Create a Post</h3>
             <input
               type="text"
               value={newPostTitle}
               onChange={(e) => setNewPostTitle(e.target.value)}
               placeholder="Post Title"
-              className="input w-full p-3 border border-[#e2e8f0] rounded-md text-[#000000] placeholder-[#666666] focus:border-[#00c4b4] focus:ring-2 focus:ring-[#00c4b4]/50 mb-4"
+              className="w-full p-3 bg-[#1a1a1a] text-[#ffffff] border border-[#00c4b4]/50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00c4b4] transition-all placeholder-[#666666] mb-4"
             />
             <textarea
               value={newPostContent}
               onChange={(e) => setNewPostContent(e.target.value)}
               placeholder="Share your thoughts on URLs, cybersecurity, etc..."
-              className="input w-full p-3 border border-[#e2e8f0] rounded-md text-[#000000] placeholder-[#666666] focus:border-[#00c4b4] focus:ring-2 focus:ring-[#00c4b4]/50"
+              className="w-full p-3 bg-[#1a1a1a] text-[#ffffff] border border-[#00c4b4]/50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00c4b4] transition-all placeholder-[#666666]"
               rows={4}
             />
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={createPost}
-              className="btn btn-primary mt-4 w-full bg-[#00c4b4] hover:bg-[#00a89a] text-[#ffffff] flex items-center justify-center gap-2 px-4 py-2 rounded"
+              className="mt-4 w-full bg-[#00c4b4] hover:bg-[#00a89a] text-[#ffffff] font-semibold py-2 px-4 rounded-md flex items-center justify-center gap-2 transition-all shadow-md"
             >
               <Send size={16} /> Post
-            </button>
+            </motion.button>
           </motion.div>
 
           {/* Posts List */}
@@ -253,27 +248,27 @@ function CommunityPosts() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="p-4 bg-white rounded-md shadow-sm border border-[#e2e8f0] hover:shadow-md transition-shadow"
+                className="p-4 bg-[#252525] rounded-xl shadow-md border border-[#00c4b4]/20 hover:shadow-lg hover:border-[#00c4b4]/50 transition-all backdrop-blur-sm"
               >
-                <h4 className="text-lg font-semibold text-[#000000]">{post.title}</h4>
-                <p className="text-sm text-[#000000] mt-2">{post.content}</p>
-                <div className="flex items-center gap-4 mt-4 text-xs text-[#000000]">
+                <h4 className="text-lg font-semibold text-[#ffffff]">{post.title}</h4>
+                <p className="text-sm text-[#cccccc] mt-2">{post.content}</p>
+                <div className="flex items-center gap-4 mt-4 text-xs text-[#cccccc]">
                   <span>Posted by {post.user_name} on {new Date(post.created_at).toLocaleString()}</span>
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
                     onClick={() => handleLike(post.id)}
-                    className={`flex items-center gap-1 transition-colors ${
-                      likedPosts.has(post.id) ? 'text-[#00c4b4]' : 'text-[#000000] hover:text-[#00a89a]'
-                    }`}
+                    className={`flex items-center gap-1 transition-colors ${likedPosts.has(post.id) ? 'text-[#00c4b4]' : 'text-[#cccccc] hover:text-[#00a89a]'}`}
                   >
                     <ThumbsUp size={16} className={likedPosts.has(post.id) ? 'fill-current' : ''} />
                     {post.likes || 0} Likes
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
                     onClick={() => handleAIOverview(post.id, post.content)}
-                    className="flex items-center gap-1 text-[#000000] hover:text-[#00c4b4] transition-colors"
+                    className="flex items-center gap-1 text-[#cccccc] hover:text-[#00c4b4] transition-colors"
                   >
                     <Info size={16} /> AI Overview
-                  </button>
+                  </motion.button>
                 </div>
                 {overviewPostId === post.id && (
                   <motion.div
@@ -281,10 +276,10 @@ function CommunityPosts() {
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="mt-4 p-4 bg-gray-50 rounded-md text-sm text-[#000000]"
+                    className="mt-4 p-4 bg-[#1a1a1a]/80 rounded-md text-sm text-[#cccccc] border border-[#00c4b4]/30"
                   >
                     {overviewLoading ? (
-                      <p className="animate-pulse">Generating overview...</p>
+                      <p className="animate-pulse text-[#00c4b4]">Generating overview...</p>
                     ) : (
                       <p>{overviewContent}</p>
                     )}
