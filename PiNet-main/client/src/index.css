@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 /* Import fonts */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap");
 
 /* Root Variables for Black and White Colorway */
 :root {
@@ -31,13 +31,17 @@
 }
 
 .starry-bg::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
   transform: translate(-50%, -50%);
   z-index: 1;
 }
@@ -60,7 +64,7 @@
 }
 
 body {
-  font-family: 'Open Sans', sans-serif; /* Body text */
+  font-family: "Open Sans", sans-serif; /* Body text */
   font-weight: 400;
   line-height: 1.6;
   background: var(--background);
@@ -106,23 +110,27 @@ body {
   border-radius: 12px;
   font-weight: 600;
   background: var(--btn-bg);
-  box-shadow: 6px 6px 12px rgba(255, 255, 255, 0.1), -6px -6px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 6px 6px 12px rgba(255, 255, 255, 0.1),
+    -6px -6px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #666666;
-  transition: all 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition: all 0.3s ease, transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
   cursor: pointer;
   color: var(--text-primary);
-  font-family: 'Fira Code', monospace; /* Techy flair */
+  font-family: "Fira Code", monospace; /* Techy flair */
   position: relative;
   overflow: hidden;
 }
 
 .btn-neu:hover:not(:disabled) {
-  box-shadow: 4px 4px 8px rgba(255, 255, 255, 0.15), -4px -4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 4px 4px 8px rgba(255, 255, 255, 0.15),
+    -4px -4px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px) scale(1.05);
 }
 
 .btn-neu:active:not(:disabled) {
-  box-shadow: inset 4px 4px 8px rgba(255, 255, 255, 0.15), inset -4px -4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 4px 4px 8px rgba(255, 255, 255, 0.15),
+    inset -4px -4px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(1px);
 }
 
@@ -174,7 +182,7 @@ body {
   padding: 1.25rem;
   border-radius: 8px;
   font-size: 0.9rem;
-  font-family: 'Fira Code', monospace; /* Techy flair */
+  font-family: "Fira Code", monospace; /* Techy flair */
 }
 
 .highlight-box {
@@ -183,7 +191,7 @@ body {
   border-left: 4px solid #ffffff;
   border-radius: 8px;
   font-size: 0.9rem;
-  font-family: 'Fira Code', monospace; /* Techy flair */
+  font-family: "Fira Code", monospace; /* Techy flair */
 }
 
 /* Glass Header */
@@ -199,7 +207,17 @@ body {
 .vigilynx-text-multicolor {
   display: inline-block;
   color: #ffffff; /* White base color */
-  background: linear-gradient(90deg, #ff0000, #ff7700, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+  background: linear-gradient(
+    90deg,
+    #ff0000,
+    #ff7700,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #ff00ff,
+    #ff0000
+  );
   background-size: 800% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -213,9 +231,15 @@ body {
 }
 
 @keyframes rainbowShift {
-  0% { background-position: 0% 0; }
-  50% { background-position: 100% 0; }
-  100% { background-position: 0% 0; }
+  0% {
+    background-position: 0% 0;
+  }
+  50% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0% 0;
+  }
 }
 
 /* Animated Text Effect */
@@ -235,14 +259,19 @@ body {
 }
 
 /* Headings */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Montserrat', sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Montserrat", sans-serif;
   font-weight: 700; /* Bold and modern */
 }
 
 /* Preloader Signature Text */
 .signature-text {
-  font-family: 'Dancing Script', cursive;
+  font-family: "Dancing Script", cursive;
   font-size: 20rem; /* Large size, ~40% of screen height */
   font-weight: 100; /* Significantly reduced font weight */
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
@@ -255,7 +284,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Preloader VIGILYNX Text */
 .vigilynx-preload {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 900; /* Much greater weight than VX */
   font-size: 2rem; /* Adjusted for visibility */
   color: #ffffff;
@@ -285,16 +314,19 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Neon Glow Effect for Main Heading */
 /* Neon Glow Effect for Main Heading */
+/* Cyberpunk Effect for Main Heading */
+/* Simplified Attractive Effect for Main Heading */
 .animated-text.main-heading {
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.4), 0 0 10px rgba(255, 255, 255, 0.3), 0 0 15px rgba(255, 255, 255, 0.2);
-  animation: neonPulse 2s infinite alternate;
+  font-family: "Open Sans", sans-serif; /* Cleaner, modern font */
+  font-weight: 600; /* Reduced from 700 for a lighter look */
+  color: #ffffff; /* Keep white color */
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); /* Subtle static glow */
+  transition: text-shadow 0.3s ease, transform 0.3s ease; /* Smooth hover transition */
 }
 
-@keyframes neonPulse {
-  0% {
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.4), 0 0 10px rgba(255, 255, 255, 0.3), 0 0 15px rgba(255, 255, 255, 0.2);
-  }
-  100% {
-    text-shadow: 0 0 7px rgba(255, 255, 255, 0.5), 0 0 12px rgba(255, 255, 255, 0.4), 0 0 17px rgba(255, 255, 255, 0.3);
-  }
+/* Hover Effect */
+.animated-text.main-heading:hover {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.6),
+    0 0 15px rgba(255, 255, 255, 0.4); /* Enhanced glow on hover */
+  transform: scale(1.02); /* Slight scale for interactivity */
 }
