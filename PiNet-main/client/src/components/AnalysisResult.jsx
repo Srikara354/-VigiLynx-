@@ -37,11 +37,16 @@ function AnalysisResult({ result }) {
 
   const chartData = {
     labels: ['Safe', 'Malicious', 'Suspicious'],
-    datasets: [{
-      data: [sections.pieChart.Safe, sections.pieChart.Malicious, sections.pieChart.Suspicious],
-      backgroundColor: ['#00c4b4', '#ef4444', '#f59e0b'],
-      borderWidth: 0,
-    }],
+    datasets: [
+      {
+        data: result.safetyScore === 0
+          ? [100, 0, 0] // If safetyScore is 0, show 100% Safe
+          : [result.vtStats.harmless + result.vtStats.undetected, result.vtStats.malicious, result.vtStats.suspicious], // Otherwise, use actual data
+        backgroundColor: ['#00c4b4', '#ff6384', '#ffcd56'],
+        borderColor: ['#00c4b4', '#ff6384', '#ffcd56'],
+        borderWidth: 1,
+      },
+    ],
   };
 
   return (
@@ -52,7 +57,6 @@ function AnalysisResult({ result }) {
       className="space-y-8 w-full"
     >
       <div className="card bg-[#000000] p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold text-[#ffffff] animated-text">{sections.title}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
           <div className="highlight-box p-6 border-l-4 border-[#ffffff] bg-[#666666] rounded-md">
             <p>
@@ -63,7 +67,9 @@ function AnalysisResult({ result }) {
             </p>
             <p className="mt-2">
               <strong className="text-[#ffffff] animated-text">Safety Score:</strong>{' '}
-              <span className="text-[#00c4b4]">{result.safetyScore}/100</span>
+            <span className="text-[#00c4b4]">
+  {result.safetyScore === 0 ? 100 : result.safetyScore}/100
+</span>
             </p>
             {result.vtStats && (
               <p className="text-sm text-[#cccccc] mt-2 animated-text">
@@ -78,32 +84,32 @@ function AnalysisResult({ result }) {
           </div>
           <div className="flex items-center justify-center">
             <div style={{ width: '200px', height: '200px' }}>
-              <Pie
-                data={chartData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      display: true,
-                      position: 'right',
-                      labels: { font: { size: 12 }, color: '#ffffff', padding: 10 },
-                    },
-                    tooltip: {
-                      backgroundColor: '#e5e7eb',
-                      titleFont: { size: 12 },
-                      bodyFont: { size: 10 },
-                      callbacks: {
-                        label: (context) => {
-                          const label = context.label || '';
-                          const value = context.raw || 0;
-                          return `${label}: ${value}%`;
-                        },
-                      },
-                    },
-                  },
-                }}
-              />
+            <Pie
+  data={chartData}
+  options={{
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'right',
+        labels: { font: { size: 12 }, color: '#ffffff', padding: 10 },
+      },
+      tooltip: {
+        backgroundColor: '#e5e7eb',
+        titleFont: { size: 12 },
+        bodyFont: { size: 10 },
+        callbacks: {
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.raw || 0;
+            return `${label}: ${value}%`;
+          },
+        },
+      },
+    },
+  }}
+/>
             </div>
           </div>
           <div className="output-box p-6 bg-[#666666] rounded-md">

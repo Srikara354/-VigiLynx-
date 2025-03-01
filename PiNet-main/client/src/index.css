@@ -184,6 +184,13 @@ body {
   font-size: 0.9rem;
   font-family: "Fira Code", monospace; /* Techy flair */
 }
+.output-box-1 {
+  background: var(--highlight-bg);
+  padding: 1.25rem;
+  border-radius: 8px;
+  font-size: 4.9rem;
+  font-family: "Fira Code", monospace; /* Techy flair */
+}
 
 .highlight-box {
   background: var(--highlight-bg);
