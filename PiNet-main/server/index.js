@@ -53,7 +53,7 @@ async function fetchGeminiData(type, input, vtStats, vtFullData) {
     - **Threats & Vulnerabilities:** List specific threats based solely on VirusTotal data (e.g., malware, phishing) or state "No specific threats detected" if none found. Include general risks associated with the input type (e.g., indirect risks from search results for URLs).
     - **Reputation:** Assess trustworthiness based on the domain/source and VirusTotal results, providing a qualitative analysis.
     - **Context:** Describe the input’s purpose and potential risks based on its nature (e.g., search query, website, file).
-    - **Safety Tips:** Provide 5+ actionable, specific tips to mitigate risks, tailored to the input type.
+    - **Safety Tips:** Provide 4 actionable, specific bullet tips to mitigate risks, tailored to the input type.
     - **JSON Pie Chart:** Use these exact values based on VirusTotal: {"Safe": ${safePercentage}, "Malicious": ${maliciousPercentage}, "Suspicious": ${suspiciousPercentage}}. Do not alter these percentages; they must reflect the VirusTotal stats provided.
     Ensure detailed, clear, and actionable content for all sections, avoiding vague or incomplete responses.
   `;
