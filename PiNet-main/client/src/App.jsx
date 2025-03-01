@@ -153,7 +153,7 @@ function App() {
           transition={{ duration: 0.8, ease: 'easeOut', delay: isLoading ? 0 : 0.4 }}
           className="text-center py-12 space-y-6 w-full"
         >
-<h2 className="text-5xl font-extrabold text-[#ffffff] drop-shadow-md animated-text main-heading">One Click, and Boom! Nah, Not on Our Watch.</h2>        </motion.section>
+<h2 className="text-4xl font-bold text-[#ffffff] drop-shadow-md animated-text main-heading">One Click, AND BOOOOM!! Nah, Not on Our Watch.</h2>        </motion.section>
 
         <motion.div
           key={view}
