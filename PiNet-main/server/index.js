@@ -242,7 +242,7 @@ app.post('/api/scan-file', upload.single('file'), async (req, res) => {
     const analysisId = vtResponse.data.data.id;
     console.log('File POST submitted, Analysis ID:', analysisId);
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 5; i++) {
       await new Promise(r => setTimeout(r, 3000));
       const analysis = await axios.get(`https://www.virustotal.com/api/v3/analyses/${analysisId}`, { headers: { 'x-apikey': process.env.VIRUSTOTAL_API_KEY } });
       console.log(`File analysis attempt ${i + 1}:`, analysis.data.data.attributes.status);
@@ -252,12 +252,12 @@ app.post('/api/scan-file', upload.single('file'), async (req, res) => {
         console.log('VirusTotal File Analysis Complete:', vtStats);
         break;
       }
-      if (i === 29) {
+      if (i === 5) {
         console.log('File analysis timed out after 90 seconds');
         return res.status(202).json({
           message: 'File scan queued, analysis still in progress after 90 seconds',
           analysisId,
-          isSafe: null,
+          isSafe: Safe,
           safetyScore: null,
           vtStats: null,
           vtFullData: null,
