@@ -108,7 +108,7 @@ function ParentalMonitor() {
         <div className="w-full space-y-6">
           {filteredHistory.map((item) => (
             <div key={item.id} className="output-box p-6 bg-[#666666] rounded-md">
-              <p className="animated-text"><strong className="text-[#ffffff]">Input:</strong> {item.input}</p>
+              
               <p className="animated-text"><strong className="text-[#ffffff]">Type:</strong> {item.type}</p>
               <p className="animated-text">
                 <strong className="text-[#ffffff]">Status:</strong>{' '}
