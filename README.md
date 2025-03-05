@@ -1,36 +1,32 @@
-﻿# VigiLynx
+﻿# Project VigiLynx
 
-## Overview
-
-VigiLynx is a cutting-edge surveillance system designed to provide real-time monitoring and analytics. It leverages advanced machine learning algorithms to detect and alert on potential security threats.
-
-## Features
-
-- Phishing Detection
-- Malware Detection
+## Description
+VigiLynx is a project aimed at detecting phishing and malware. This project analyzes URLs to determine if they are phishing attempts and checks files to see if they are malicious.
 
 ## Installation
-
-To install VigiLynx, follow these steps:
+To install the project, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/HarshaBhat24/VigiLynx.git
+   git clone https://github.com/HarshaBhat24/VigiLynx-HackAthena.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd VigiLynx
+   cd VigiLynx-HackAthena
    ```
-3. Install the required dependencies:
+3. Install the dependencies:
    ```bash
-   pip install -r requirements.txt
-   pip install --upgrade pip setuptools
+   npm install
    ```
 
 ## Usage
-
-To start the VigiLynx system, run the following command:
-
-```bash
-python3 main.py --type malware --source /path/to/file
-```
+To use the project, follow these steps:
+split the terminal
+1. ```bash
+   cd client
+   npm run dev
+   ```
+2. ```bash
+   cd sever
+   npm start
+   ```

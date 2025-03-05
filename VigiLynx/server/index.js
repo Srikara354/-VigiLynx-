@@ -53,7 +53,7 @@ async function fetchGeminiData(type, input, vtStats, vtFullData) {
     - **Threats & Vulnerabilities:** List specific threats based solely on VirusTotal data (e.g., malware, phishing) or state "No specific threats detected" if none found. Include general risks associated with the input type (e.g., indirect risks from search results for URLs).
     - **Reputation:** Assess trustworthiness based on the domain/source and VirusTotal results, providing a qualitative analysis.
     - **Context:** Describe the input’s purpose and potential risks based on its nature (e.g., search query, website, file).
-    - **Safety Tips:** Provide 4 actionable, specific bullet tips to mitigate risks, tailored to the input type.
+    - **Safety Tips:** Provide 5+ actionable, specific tips to mitigate risks, tailored to the input type.
     - **JSON Pie Chart:** Use these exact values based on VirusTotal: {"Safe": ${safePercentage}, "Malicious": ${maliciousPercentage}, "Suspicious": ${suspiciousPercentage}}. Do not alter these percentages; they must reflect the VirusTotal stats provided.
     Ensure detailed, clear, and actionable content for all sections, avoiding vague or incomplete responses.
   `;
@@ -242,7 +242,7 @@ app.post('/api/scan-file', upload.single('file'), async (req, res) => {
     const analysisId = vtResponse.data.data.id;
     console.log('File POST submitted, Analysis ID:', analysisId);
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 30; i++) {
       await new Promise(r => setTimeout(r, 3000));
       const analysis = await axios.get(`https://www.virustotal.com/api/v3/analyses/${analysisId}`, { headers: { 'x-apikey': process.env.VIRUSTOTAL_API_KEY } });
       console.log(`File analysis attempt ${i + 1}:`, analysis.data.data.attributes.status);
@@ -252,12 +252,12 @@ app.post('/api/scan-file', upload.single('file'), async (req, res) => {
         console.log('VirusTotal File Analysis Complete:', vtStats);
         break;
       }
-      if (i === 5) {
+      if (i === 29) {
         console.log('File analysis timed out after 90 seconds');
         return res.status(202).json({
           message: 'File scan queued, analysis still in progress after 90 seconds',
           analysisId,
-          isSafe: Safe,
+          isSafe: null,
           safetyScore: null,
           vtStats: null,
           vtFullData: null,
