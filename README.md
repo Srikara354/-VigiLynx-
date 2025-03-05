@@ -21,12 +21,12 @@ To install the project, follow these steps:
 
 ## Usage
 To use the project, follow these steps:
-split the terminal
-1. ```bash
+1. Split the terminal
+2. ```bash
    cd client
    npm run dev
    ```
-2. ```bash
+3. ```bash
    cd sever
    npm start
    ```
