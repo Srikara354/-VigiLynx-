@@ -8,11 +8,16 @@ const CybersecurityNews = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6; // Number of news items per page
 
-  const API_KEY = '47151991aa5a477a95373fd5b81a12bb';
+  const API_KEY = import.meta.env.VITE_NEWS_API_KEY;
   const API_URL = `https://newsapi.org/v2/everything?q=cybersecurity&language=en&sortBy=publishedAt&pageSize=100&apiKey=${API_KEY}`;
 
   useEffect(() => {
     const fetchNews = async () => {
+      if(!API_KEY){
+        setError('API key is missing. Please add your News API key to the .env file');
+        setLoading(false);
+        return;
+      }
       try {
         const response = await fetch(API_URL);
         if (!response.ok) throw new Error('Failed to fetch news');
