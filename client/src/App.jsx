@@ -17,93 +17,41 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [userType, setUserType] = useState(null); // 'guest', 'normal', or 'parent'
-  const [session, setSession] = useState(null);
 
   useEffect(() => {
-    // Check for existing session
     const getSession = async () => {
       const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      
       if (data.session?.user) {
         setUser(data.session.user);
         setIsLoggedIn(true);
-        
-        // Get user type from metadata or from localStorage if just returned from OAuth
-        let userAccountType = data.session.user.user_metadata?.user_type;
-        
-        // Get from localStorage for OAuth flows (Google login)
-        if (!userAccountType) {
-          userAccountType = localStorage.getItem('vigilynx_account_type') || 'normal';
-          
-          // Update the user's metadata with the saved account type
-          if (userAccountType) {
-            await supabase.auth.updateUser({
-              data: { user_type: userAccountType }
-            });
-            console.log("Updated user metadata with account type:", userAccountType);
-          }
+
+        let userAccountType = data.session.user.user_metadata?.user_type || localStorage.getItem('vigilynx_account_type') || 'normal';
+        if (!data.session.user.user_metadata?.user_type) {
+          await supabase.auth.updateUser({ data: { user_type: userAccountType } });
         }
-        
-        // If we have a Google auth user with no metadata, update it
-        if (!data.session.user.user_metadata?.user_type && data.session.user.app_metadata?.provider === 'google') {
-          const savedType = localStorage.getItem('vigilynx_account_type');
-          if (savedType) {
-            await supabase.auth.updateUser({
-              data: { user_type: savedType }
-            });
-            userAccountType = savedType;
-            console.log("Updated Google user metadata with account type:", savedType);
-          }
-        }
-        
-        setUserType(userAccountType || 'normal');
-        
-        // Clear localStorage after use
-        if (localStorage.getItem('vigilynx_account_type')) {
-          localStorage.removeItem('vigilynx_account_type');
-        }
+        setUserType(userAccountType);
+        localStorage.removeItem('vigilynx_account_type');
       } else {
         setUser(null);
         setIsLoggedIn(false);
         setUserType(null);
       }
-      
-      // Start the preloader timer after auth check
-      const timer = setTimeout(() => setIsLoading(false), 2000);
-      return () => clearTimeout(timer);
+      setIsLoading(false);
     };
 
     getSession();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      
       if (session?.user) {
         setUser(session.user);
         setIsLoggedIn(true);
-        
-        // Get user type from metadata or localStorage
-        let userAccountType = session.user.user_metadata?.user_type;
-        
-        if (!userAccountType) {
-          userAccountType = localStorage.getItem('vigilynx_account_type') || 'normal';
-          
-          // Update the user's metadata with the saved account type
-          if (userAccountType) {
-            await supabase.auth.updateUser({
-              data: { user_type: userAccountType }
-            });
-          }
+
+        let userAccountType = session.user.user_metadata?.user_type || localStorage.getItem('vigilynx_account_type') || 'normal';
+        if (!session.user.user_metadata?.user_type) {
+          await supabase.auth.updateUser({ data: { user_type: userAccountType } });
         }
-        
-        setUserType(userAccountType || 'normal');
-        
-        // Clear localStorage after use
-        if (localStorage.getItem('vigilynx_account_type')) {
-          localStorage.removeItem('vigilynx_account_type');
-        }
+        setUserType(userAccountType);
+        localStorage.removeItem('vigilynx_account_type');
       } else {
         setUser(null);
         setIsLoggedIn(false);
@@ -121,23 +69,10 @@ function App() {
     setUserType(null);
   };
 
-  // This function determines if a navigation option should be shown based on user type
   const shouldShowNavOption = (option) => {
     if (!isLoggedIn) return false;
-
-    // Logic for guest users
-    if (userType === 'guest') {
-      // Guests only see CyberGuard and CyberNews
-      return ['cyberguard', 'news'].includes(option);
-    }
-    
-    // Logic for normal users
-    if (userType === 'normal') {
-      // Normal users see everything except ParentalMonitor
-      return option !== 'parental';
-    }
-    
-    // Parent users see everything
+    if (userType === 'guest') return ['cyberguard', 'news'].includes(option);
+    if (userType === 'normal') return option !== 'parental';
     return true;
   };
 
@@ -152,38 +87,18 @@ function App() {
       shape: { type: 'circle' },
       opacity: { value: 0.5, random: true },
       size: { value: 2, random: true },
-      move: {
-        enable: true,
-        speed: 1,
-        direction: 'none',
-        random: true,
-        straight: false,
-        out_mode: 'out',
-      },
+      move: { enable: true, speed: 1, direction: 'none', random: true, out_mode: 'out' },
     },
     interactivity: {
-      detect_on: 'canvas',
-      events: {
-        onhover: { enable: true, mode: 'repulse' },
-        onclick: { enable: true, mode: 'push' },
-        resize: true,
-      },
-      modes: {
-        repulse: { distance: 100, duration: 0.4 },
-        push: { particles_nb: 4 },
-      },
+      events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' } },
+      modes: { repulse: { distance: 100, duration: 0.4 }, push: { particles_nb: 4 } },
     },
     retina_detect: true,
   };
 
   return (
     <div className="min-h-screen starry-bg flex flex-col relative">
-      <Particles
-        id="tsparticles"
-        init={particlesInit}
-        options={particlesOptions}
-        className="absolute inset-0 z-0"
-      />
+      <Particles id="tsparticles" init={particlesInit} options={particlesOptions} className="absolute inset-0 z-0" />
       {isLoading && (
         <motion.div
           className="fixed inset-0 flex items-center justify-center bg-[#000000] z-50"
@@ -224,9 +139,6 @@ function App() {
                   <motion.button
                     onClick={() => setView('cyberguard')}
                     className={`btn-neu ${view === 'cyberguard' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: isLoading ? 0 : 1 }}
-                    transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.4 }}
                   >
                     CyberGuard
                   </motion.button>
@@ -235,9 +147,6 @@ function App() {
                   <motion.button
                     onClick={() => setView('parental')}
                     className={`btn-neu ${view === 'parental' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: isLoading ? 0 : 1 }}
-                    transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.5 }}
                   >
                     Parental Monitor
                   </motion.button>
@@ -246,9 +155,6 @@ function App() {
                   <motion.button
                     onClick={() => setView('news')}
                     className={`btn-neu ${view === 'news' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: isLoading ? 0 : 1 }}
-                    transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.6 }}
                   >
                     Cybersecurity News
                   </motion.button>
@@ -257,9 +163,6 @@ function App() {
                   <motion.button
                     onClick={() => setView('community')}
                     className={`btn-neu ${view === 'community' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: isLoading ? 0 : 1 }}
-                    transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.7 }}
                   >
                     Community Post
                   </motion.button>
@@ -268,21 +171,12 @@ function App() {
                   <motion.button
                     onClick={() => setView('threat')}
                     className={`btn-neu ${view === 'threat' ? 'btn-neu-primary' : 'btn-neu-secondary'} animated-text`}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: isLoading ? 0 : 1 }}
-                    transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.8 }}
                   >
                     Threat Dashboard
                   </motion.button>
                 )}
               </nav>
-              <motion.button
-                onClick={handleLogout}
-                className="btn-neu btn-neu-secondary animated-text"
-                initial={{ scale: 0 }}
-                animate={{ scale: isLoading ? 0 : 1 }}
-                transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.9 }}
-              >
+              <motion.button onClick={handleLogout} className="btn-neu btn-neu-secondary animated-text">
                 Logout
               </motion.button>
             </div>
@@ -297,7 +191,10 @@ function App() {
           transition={{ duration: 0.8, ease: 'easeOut', delay: isLoading ? 0 : 0.4 }}
           className="text-center py-12 space-y-6 w-full"
         >
-<h2 className="text-5xl font-extrabold text-[#ffffff] drop-shadow-md animated-text main-heading">One Click, and Boom! Nah, Not on Our Watch.</h2>        </motion.section>
+          <h2 className="text-5xl font-extrabold text-[#ffffff] drop-shadow-md animated-text main-heading">
+            One Click, and Boom! Nah, Not on Our Watch.
+          </h2>
+        </motion.section>
 
         <motion.div
           key={view}
@@ -306,9 +203,7 @@ function App() {
           transition={{ duration: 0.6, ease: 'easeOut', delay: isLoading ? 0 : 0.6 }}
           className="w-full"
         >
-          {!isLoggedIn && !isLoading && (
-            <Login setIsLoggedIn={setIsLoggedIn} setUser={setUser} setUserType={setUserType} />
-          )}
+          {!isLoggedIn && !isLoading && <Login setIsLoggedIn={setIsLoggedIn} setUser={setUser} setUserType={setUserType} />}
           {isLoggedIn && view === 'cyberguard' && <CyberGuard />}
           {isLoggedIn && view === 'parental' && userType === 'parent' && <ParentalMonitor />}
           {isLoggedIn && view === 'news' && <CyberNews />}
