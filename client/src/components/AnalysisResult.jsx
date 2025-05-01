@@ -1,139 +1,223 @@
 import { motion } from 'framer-motion';
-import { Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { AlertCircle, AlertTriangle, CheckCircle, Info, ChevronDown, ChevronUp, Link, Shield, FileText, Code } from 'lucide-react';
+import { useState, memo } from 'react';
+import { cn, getSeverityColor, formatDate, sanitizeContent } from '../lib/utils';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+const AnalysisResult = memo(function AnalysisResult({ result }) {
+  const [expandedSection, setExpandedSection] = useState('summary');
 
-function AnalysisResult({ result }) {
-  const insightsText = result.geminiInsights || '';
-
-  // Robust parsing aligned with backend's geminiInsights format
-  const sections = {
-    title: result.input || 'Unknown Input',
-    threats: insightsText.match(/Threats & Vulnerabilities:\*\*([\s\S]*?)(?=\*\*|$)/i)?.[1]?.trim().split('\n').map(line => line.replace(/^\*\s*|-|\s*\*/g, '').trim()).filter(line => line.length > 0) || ['No specific threats detected'],
-    reputation: insightsText.match(/Reputation:\*\*([\s\S]*?)(?=\*\*|$)/i)?.[1]?.trim().split('\n').map(line => line.replace(/^\*\s*|-|\s*\*/g, '').trim()).filter(line => line.length > 0) || ['No data available'],
-    context: insightsText.match(/Context:\*\*([\s\S]*?)(?=\*\*|$)/i)?.[1]?.trim().split('\n').map(line => line.replace(/^\*\s*|-|\s*\*/g, '').trim()).filter(line => line.length > 0) || ['No data available'],
-    safetyTips: (() => {
-      // Updated regex to match the entire "Safety Tips" section
-      const match = insightsText.match(/Safety Tips:\*\*([\s\S]*?)(?=\n\*\*|$)/i);
-      console.log('Safety Tips Match:', match);
-      if (match && match[1]) {
-        const tips = match[1]
-          .trim()
-          .split('\n') // Split into lines
-          .map(line => line.replace(/^\d+\.\s*|\*\s*|-|\s*\*/g, '').trim()) // Clean up each line
-          .filter(line => line.length > 0 && !line.match(/^\s*$/)); // Remove empty lines
-        console.log('Parsed Safety Tips:', tips);
-        return tips.length > 0 ? tips : ['No specific tips available'];
-      }
-      return ['No specific tips available'];
-    })(),
-    pieChart: insightsText.match(/```json\s*([\s\S]*?)\s*```/) ? JSON.parse(insightsText.match(/```json\s*([\s\S]*?)\s*```/)[1].replace(/\s/g, '')) : {
-      Safe: Math.round(((result.vtStats?.harmless || 0) + (result.vtStats?.undetected || 0)) / ((result.vtStats?.harmless || 0) + (result.vtStats?.undetected || 0) + (result.vtStats?.malicious || 0) + (result.vtStats?.suspicious || 0) + (result.vtStats?.timeout || 0)) * 100),
-      Malicious: result.vtStats?.malicious || 0,
-      Suspicious: result.vtStats?.suspicious || 0
-    },
+  const getRiskIndicator = (score) => {
+    const color = getSeverityColor(score);
+    return (
+      <div className="flex items-center gap-2">
+        <div className={`h-2 w-2 rounded-full bg-${color}`}></div>
+        <span className={`text-${color} font-medium`}>
+          {score >= 7 ? 'High' : score >= 4 ? 'Medium' : 'Low'} Risk
+        </span>
+      </div>
+    );
+  };
+  
+  const toggleSection = (section) => {
+    setExpandedSection(expandedSection === section ? null : section);
   };
 
-  const chartData = {
-    labels: ['Safe', 'Malicious', 'Suspicious'],
-    datasets: [{
-      data: [sections.pieChart.Safe, sections.pieChart.Malicious, sections.pieChart.Suspicious],
-      backgroundColor: ['#00c4b4', '#ef4444', '#f59e0b'],
-      borderWidth: 0,
-    }],
+  const renderResultIcon = () => {
+    const score = result.risk_score || 0;
+    if (score >= 7) {
+      return <AlertCircle size={24} className="text-danger" />;
+    } else if (score >= 4) {
+      return <AlertTriangle size={24} className="text-warning" />;
+    } else {
+      return <CheckCircle size={24} className="text-success" />;
+    }
+  };
+
+  const renderDetailItem = (label, value, icon = null) => (
+    <div className="flex items-start gap-2 py-2 border-b border-border last:border-0">
+      <div className="w-36 text-sm font-medium text-muted-foreground flex items-center gap-1">
+        {icon && <span className="text-primary">{icon}</span>}
+        {label}
+      </div>
+      <div className="flex-1 text-sm">{value || 'N/A'}</div>
+    </div>
+  );
+
+  const renderThreatsList = () => {
+    if (!result.threats || result.threats.length === 0) {
+      return (
+        <div className="text-center p-4 bg-secondary/30 rounded-lg">
+          <CheckCircle className="mx-auto mb-2 text-success" size={24} />
+          <p className="text-muted-foreground">No threats detected</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        {result.threats.map((threat, index) => (
+          <div 
+            key={index}
+            className="p-3 border border-danger/20 rounded-lg bg-danger/5 transition-all-normal hover:shadow-hover"
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={16} className="text-danger shrink-0" />
+                <h4 className="font-medium">{threat.name}</h4>
+              </div>
+              <span className="badge badge-danger">{threat.category}</span>
+            </div>
+            {threat.description && (
+              <p className="mt-2 text-sm text-muted-foreground">{threat.description}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderCollapsibleSection = (id, title, icon, content) => {
+    const isExpanded = expandedSection === id;
+    
+    return (
+      <div className="border border-border rounded-lg overflow-hidden mb-4 transition-all-normal">
+        <button
+          onClick={() => toggleSection(id)}
+          className={`w-full flex items-center justify-between p-4 text-left transition-all-normal ${
+            isExpanded ? 'bg-secondary/30' : 'hover:bg-secondary/20'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {icon}
+            <h3 className="text-lg font-medium">{title}</h3>
+          </div>
+          {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        </button>
+        
+        <motion.div
+          initial={false}
+          animate={{ height: isExpanded ? 'auto' : 0, opacity: isExpanded ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="overflow-hidden"
+        >
+          <div className="p-4 bg-card">{content}</div>
+        </motion.div>
+      </div>
+    );
   };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="space-y-8 w-full"
+      className="card card-gradient"
     >
-      <div className="card bg-[#000000] p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold text-[#ffffff] animated-text">{sections.title}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
-          <div className="highlight-box p-6 border-l-4 border-[#ffffff] bg-[#666666] rounded-md">
-            <p>
-              <strong className="text-[#ffffff] animated-text">Status:</strong>{' '}
-              <span className={result.isSafe ? 'text-[#00c4b4]' : 'text-[#ef4444]'}>
-                {result.isSafe ? 'Safe' : 'Unsafe'}
-              </span>
-            </p>
-            <p className="mt-2">
-              <strong className="text-[#ffffff] animated-text">Safety Score:</strong>{' '}
-              <span className="text-[#00c4b4]">{result.safetyScore}/100</span>
-            </p>
-            {result.vtStats && (
-              <p className="text-sm text-[#cccccc] mt-2 animated-text">
-                Malicious: {result.vtStats.malicious || 0} | Suspicious: {result.vtStats.suspicious || 0} | Harmless: {result.vtStats.harmless || 0} | Undetected: {result.vtStats.undetected || 0}
-              </p>
-            )}
-            {result.vtFullData?.threat_names?.length > 0 && (
-              <p className="mt-2 text-sm text-[#cccccc] animated-text">
-                <strong>Threats:</strong> {result.vtFullData.threat_names.join(', ')}
-              </p>
-            )}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {renderResultIcon()}
+            <h2 className="text-xl font-semibold">Analysis Results</h2>
           </div>
-          <div className="flex items-center justify-center">
-            <div style={{ width: '200px', height: '200px' }}>
-              <Pie
-                data={chartData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      display: true,
-                      position: 'right',
-                      labels: { font: { size: 12 }, color: '#ffffff', padding: 10 },
-                    },
-                    tooltip: {
-                      backgroundColor: '#e5e7eb',
-                      titleFont: { size: 12 },
-                      bodyFont: { size: 10 },
-                      callbacks: {
-                        label: (context) => {
-                          const label = context.label || '';
-                          const value = context.raw || 0;
-                          return `${label}: ${value}%`;
-                        },
-                      },
-                    },
-                  },
-                }}
-              />
+          
+          <div className="status-badge status-badge-info">
+            <Info size={14} className="mr-1" /> 
+            <span>Report ID: #{result.scan_id?.substring(0, 8) || 'N/A'}</span>
+          </div>
+        </div>
+        
+        <div className="divider"></div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="card card-compact bg-secondary/30">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Risk Score</span>
+              {getRiskIndicator(result.risk_score || 0)}
+            </div>
+            <div className="mt-2">
+              <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(100, Math.max(0, (result.risk_score || 0) * 10))}%` }}
+                  transition={{ duration: 0.8, type: "spring" }}
+                  className={cn(
+                    "h-full", 
+                    `bg-${getSeverityColor(result.risk_score || 0)}`
+                  )}
+                />
+              </div>
+              <div className="mt-1 text-2xl font-bold">{result.risk_score || 0}/10</div>
             </div>
           </div>
-          <div className="output-box p-6 bg-[#666666] rounded-md">
-            <h3 className="text-lg font-semibold text-[#ffffff] animated-text">Threats & Vulnerabilities</h3>
-            <ul className="list-disc pl-5 mt-2 space-y-2 text-sm text-[#cccccc]">
-              {sections.threats.map((threat, idx) => <li key={idx} className="animated-text">{threat}</li>)}
-            </ul>
+          
+          <div className="card card-compact bg-secondary/30">
+            <div className="text-sm font-medium mb-1">Analysis Type</div>
+            <div className="flex items-center gap-2">
+              {result.input_type === 'file' ? (
+                <FileText size={18} className="text-primary" />
+              ) : (
+                <Link size={18} className="text-primary" />
+              )}
+              <span className="font-medium capitalize">{result.input_type || 'URL'} Analysis</span>
+            </div>
           </div>
-          <div className="output-box p-6 bg-[#666666] rounded-md">
-            <h3 className="text-lg font-semibold text-[#ffffff] animated-text">Reputation</h3>
-            <ul className="list-disc pl-5 mt-2 space-y-2 text-sm text-[#cccccc]">
-              {sections.reputation.map((rep, idx) => <li key={idx} className="animated-text">{rep}</li>)}
-            </ul>
-          </div>
-          <div className="output-box p-6 bg-[#666666] rounded-md">
-            <h3 className="text-lg font-semibold text-[#ffffff] animated-text">Context</h3>
-            <ul className="list-disc pl-5 mt-2 space-y-2 text-sm text-[#cccccc]">
-              {sections.context.map((ctx, idx) => <li key={idx} className="animated-text">{ctx}</li>)}
-            </ul>
-          </div>
-          <div className="output-box p-6 bg-[#666666] rounded-md">
-            <h3 className="text-lg font-semibold text-[#ffffff] animated-text">Safety Tips</h3>
-            <ul className="list-disc pl-5 mt-2 space-y-2 text-sm text-[#cccccc]">
-              {sections.safetyTips.map((tip, idx) => <li key={idx} className="animated-text">{tip}</li>)}
-            </ul>
+          
+          <div className="card card-compact bg-secondary/30">
+            <div className="text-sm font-medium mb-1">Detection Status</div>
+            <div className="flex items-center gap-2">
+              <Shield size={18} className={cn(`text-${getSeverityColor(result.risk_score || 0)}`)} />
+              <span className="font-medium">
+                {result.threats?.length ? `${result.threats.length} Threats Detected` : 'No Threats Detected'}
+              </span>
+            </div>
           </div>
         </div>
       </div>
+
+      {renderCollapsibleSection(
+        'summary',
+        'Summary',
+        <Info size={20} className="text-info" />,
+        <div className="space-y-4">
+          <div className="prose prose-sm max-w-none dark:prose-invert" 
+               dangerouslySetInnerHTML={{ __html: sanitizeContent(result.summary || 'The analysis did not provide a summary for this scan.') }} />
+          
+          {result.recommendation && (
+            <div className="p-3 bg-info/10 rounded-lg border border-info/20">
+              <div className="font-medium text-info flex items-center gap-1 mb-1">
+                <Shield size={16} /> Recommendation
+              </div>
+              <p className="text-sm">{sanitizeContent(result.recommendation)}</p>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {renderCollapsibleSection(
+        'details',
+        'Analysis Details',
+        <Code size={20} className="text-primary" />,
+        <div className="space-y-2">
+          {renderDetailItem('Target', result.target, <Link size={16} />)}
+          {renderDetailItem('Type', result.input_type, <Info size={16} />)}
+          {renderDetailItem('Scan Date', formatDate(result.timestamp || Date.now()), <Info size={16} />)}
+          {result.file_name && renderDetailItem('File Name', result.file_name, <FileText size={16} />)}
+          {result.file_type && renderDetailItem('File Type', result.file_type, <FileText size={16} />)}
+          {result.file_size && renderDetailItem('File Size', `${(result.file_size / 1024).toFixed(2)} KB`, <FileText size={16} />)}
+        </div>
+      )}
+      
+      {renderCollapsibleSection(
+        'threats',
+        'Detected Threats',
+        <AlertCircle size={20} className="text-danger" />,
+        renderThreatsList()
+      )}
+      
+      <div className="mt-6 text-center text-xs text-muted-foreground">
+        <p>Analysis completed on {formatDate(result.timestamp || Date.now())}</p>
+      </div>
     </motion.div>
   );
-}
+});
 
 export default AnalysisResult;

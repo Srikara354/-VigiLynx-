@@ -8,18 +8,18 @@ import FormData from 'form-data';
 import { Server } from 'socket.io';
 import http from 'http';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-
+import rateLimit from 'express-rate-limit';
+import { body, query, validationResult } from 'express-validator';
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: 'http://localhost:5173', methods: ['GET', 'POST'] },
+  cors: { origin: process.env.CLIENT_URL || 'http://localhost:5173', methods: ['GET', 'POST'] },
 });
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -27,11 +27,49 @@ app.use(cors({
 app.options('*', cors());
 
 app.use(express.json());
-const upload = multer({ limits: { fileSize: 50 * 1024 * 1024 } });
+const upload = multer({ 
+  limits: { 
+    fileSize: process.env.MAX_FILE_SIZE || 50 * 1024 * 1024 // Default 50MB
+  } 
+});
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const geminiModel = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-1.5-flash' });
+
+// Stricter rate limiting middleware
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // Limit file uploads to 30 per window
+  message: 'Too many file uploads from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Standard limiter for other endpoints
+const standardLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Apply appropriate rate limiters
+app.use('/api/scan-file', strictLimiter);
+app.use(standardLimiter);
+
+// Middleware to validate and sanitize inputs
+const validateInput = (validations) => async (req, res, next) => {
+  await Promise.all(validations.map((validation) => validation.run(req)));
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  next();
+};
 
 async function fetchGeminiData(type, input, vtStats, vtFullData) {
   console.log(`Fetching Gemini data for ${type}: ${input}`);
@@ -166,73 +204,88 @@ async function scanInput(input, type) {
   }
 }
 
-app.get('/api/scan', async (req, res) => {
-  const { input } = req.query;
-  if (!input) {
-    console.log('No input provided');
-    return res.status(400).json({ error: 'Input is required' });
-  }
-  console.log('Received scan request for:', input);
+// Updated /api/scan endpoint with input validation
+app.get(
+  '/api/scan',
+  validateInput([
+    query('input')
+      .notEmpty().withMessage('Input is required')
+      .trim()
+      .escape()
+      .isLength({ max: 2000 }).withMessage('Input exceeds maximum length'),
+  ]),
+  async (req, res, next) => {
+    const { input } = req.query;
+    console.log('Received scan request for:', input);
 
-  let type;
-  const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?(\?.*)?$/;
-  if (urlPattern.test(input)) type = 'URL';
-  else if (/^[a-fA-F0-9]{32}$|^[a-fA-F0-9]{40}$|^[a-fA-F0-9]{64}$/.test(input)) type = 'Hash';
-  else if (/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/.test(input)) type = 'Domain';
-  else if (/^(\d{1,3}\.){3}\d{1,3}$/.test(input)) type = 'IP Address';
-  else {
-    return res.status(400).json({ error: 'Invalid input type. Please provide a valid URL, domain, hash, or IP address.' });
-  }
-
-  try {
-    const result = await scanInput(input, type);
-    let recordId = null;
     try {
-      const { data, error } = await supabase.from('scan_insights').insert([{
-        input,
-        type,
-        is_safe: result.isSafe,
-        safety_score: result.safetyScore,
-        vt_stats: result.vtStats,
-        vt_full_data: result.vtFullData,
-        gemini_insights: result.geminiInsights
-      }]).select();
-      if (error) throw error;
-      recordId = data[0].id;
-      console.log('Scan completed, record ID:', recordId);
-    } catch (supabaseError) {
-      console.error('Supabase Insert Error:', supabaseError.message);
-      console.log('Proceeding with response despite Supabase failure');
+      let type;
+      const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?(\?.*)?$/;
+      if (urlPattern.test(input)) type = 'URL';
+      else if (/^[a-fA-F0-9]{32}$|^[a-fA-F0-9]{40}$|^[a-fA-F0-9]{64}$/.test(input)) type = 'Hash';
+      else if (/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/.test(input)) type = 'Domain';
+      else if (/^(\d{1,3}\.){3}\d{1,3}$/.test(input)) type = 'IP Address';
+      else {
+        return res.status(400).json({ error: 'Invalid input type. Please provide a valid URL, domain, hash, or IP address.' });
+      }
+
+      const result = await scanInput(input, type);
+      
+      // Store scan result in database with improved error handling
+      let recordId = null;
+      try {
+        const { data, error } = await supabase.from('scan_insights').insert([
+          {
+            input,
+            type,
+            is_safe: result.isSafe,
+            safety_score: result.safetyScore,
+            vt_stats: result.vtStats,
+            vt_full_data: result.vtFullData,
+            gemini_insights: result.geminiInsights,
+          },
+        ]).select();
+        
+        if (error) throw error;
+        recordId = data[0].id;
+        console.log('Scan completed, record ID:', recordId);
+      } catch (supabaseError) {
+        console.error('Supabase Insert Error:', supabaseError.message);
+        // Continue sending the response despite DB failure
+      }
+
+      result.recordId = recordId;
+      res.json(result);
+    } catch (error) {
+      next(error); // Pass to error handling middleware
     }
-
-    result.recordId = recordId;
-    res.json(result);
-  } catch (error) {
-    console.error('Scan endpoint error:', error.message);
-    res.status(500).json({
-      error: `Scan failed: ${error.message || 'Internal server error'}`,
-      isSafe: false,
-      safetyScore: 0,
-      vtStats: {},
-      vtFullData: {},
-      geminiInsights: 'Analysis unavailable due to server error',
-      inputType: type.toLowerCase()
-    });
   }
-});
+);
 
-app.post('/api/scan-file', upload.single('file'), async (req, res) => {
+app.post('/api/scan-file', upload.single('file'), async (req, res, next) => {
   const file = req.file;
+  
+  // Validate file
   if (!file || file.size === 0) {
-    console.log('No file provided or file is empty');
     return res.status(400).json({ error: 'Valid file is required' });
   }
+  
+  // Check file size
+  const maxSize = process.env.MAX_FILE_SIZE || 50 * 1024 * 1024; // Default 50MB
+  if (file.size > maxSize) {
+    return res.status(413).json({ error: `File exceeds maximum size of ${maxSize / (1024 * 1024)}MB` });
+  }
+
   console.log('Received file scan request, file name:', file.originalname, 'file size:', file.size, 'bytes');
 
   let vtStats = { malicious: 0, suspicious: 0, harmless: 0, undetected: 0, timeout: 0 };
   let vtFullData = { reputation: null, threat_names: [], categories: {} };
 
   try {
+    // Set a longer timeout for file analysis
+    req.setTimeout(300000); // 5 minutes
+    res.setTimeout(300000);
+
     const formData = new FormData();
     formData.append('file', file.buffer, file.originalname);
     const vtHeaders = {
@@ -309,16 +362,7 @@ app.post('/api/scan-file', upload.single('file'), async (req, res) => {
     result.recordId = recordId;
     res.json(result);
   } catch (error) {
-    console.error('File Scan Error:', error.message);
-    res.status(500).json({
-      error: `File scan failed: ${error.message || 'Internal server error'}`,
-      isSafe: false,
-      safetyScore: 0,
-      vtStats: {},
-      vtFullData: {},
-      geminiInsights: 'Analysis unavailable due to server error',
-      inputType: 'file'
-    });
+    next(error);
   }
 });
 
@@ -334,6 +378,64 @@ app.get('/api/insights', async (req, res) => {
     console.error('Insights Fetch Error:', error.message);
     res.status(500).json({ error: `Failed to fetch insights: ${error.message}` });
   }
+});
+
+// Add a new endpoint to fetch cybersecurity news
+app.get('/api/news', async (req, res) => {
+  const API_KEY = process.env.NEWS_API_KEY;
+  const API_URL = `https://newsapi.org/v2/everything?q=cybersecurity&language=en&sortBy=publishedAt&pageSize=100&apiKey=${API_KEY}`;
+
+  try {
+    const response = await axios.get(API_URL);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching news:', error.message);
+    res.status(500).json({ error: 'Failed to fetch news' });
+  }
+});
+
+// Add a new endpoint to handle Gemini API requests
+app.post('/api/gemini', async (req, res) => {
+  const { content } = req.body;
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent';
+
+  try {
+    const response = await axios.post(
+      `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+      {
+        contents: [{
+          parts: [{ text: content }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 150,
+        }
+      },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error with Gemini API:', error.message);
+    res.status(500).json({ error: 'Failed to process Gemini API request' });
+  }
+});
+
+// Improved error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  // Avoid leaking sensitive details
+  const statusCode = err.statusCode || 500;
+  const message = statusCode === 500 
+    ? 'Internal server error' 
+    : err.message || 'Something went wrong';
+  
+  res.status(statusCode).json({ 
+    error: message,
+    status: 'error',
+    code: statusCode
+  });
 });
 
 io.on('connection', (socket) => {
