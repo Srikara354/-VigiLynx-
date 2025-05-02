@@ -28,7 +28,7 @@ function AboutUs() {
           <div>
             <h2 className="text-xl font-medium mb-3">Who We Are</h2>
             <p className="text-muted-foreground mb-3">
-              Founded in 2023, VigiLynx is a team of cybersecurity experts, engineers, and privacy advocates dedicated to developing innovative solutions to combat emerging cyber threats.
+            We're four undergrad tech rebels on a mission to lock down the web for everyone. Our crew thrives on sharing cutting-edge hacks and teaming up to squash digital threats, crafting a bulletproof online universe.
             </p>
             <p className="text-muted-foreground mb-3">
               We believe that everyone deserves to feel safe online, which is why we've created a comprehensive platform that combines threat detection, educational resources, and community support.
@@ -73,47 +73,47 @@ function AboutUs() {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="flex gap-4 items-center">
                 <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-lg font-bold text-primary">SC</span>
+                  <span className="text-lg font-bold text-primary">HB</span>
                 </div>
                 <div>
-                  <h3 className="font-medium">Sarah Chen</h3>
-                  <p className="text-sm text-muted-foreground">CEO & Cybersecurity Specialist</p>
+                  <h3 className="font-medium">S Harsha Bhat</h3>
+                  <p className="text-sm text-muted-foreground">Cybersecurity Specialist</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Former CISO with 15+ years experience in information security
+                    Security engineer with a determination to make the web a safer place
                   </p>
                 </div>
               </div>
               <div className="flex gap-4 items-center">
                 <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-lg font-bold text-primary">MJ</span>
+                  <span className="text-lg font-bold text-primary">SS</span>
                 </div>
                 <div>
-                  <h3 className="font-medium">Mark Johnson</h3>
-                  <p className="text-sm text-muted-foreground">CTO & AI Researcher</p>
+                  <h3 className="font-medium">G Shreyas Shetty</h3>
+                  <p className="text-sm text-muted-foreground">AI Researcher</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    PhD in Computer Science with focus on ML and security
+                    Machine learning engineer with a focus on cybersecurity
                   </p>
                 </div>
               </div>
               <div className="flex gap-4 items-center">
                 <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-lg font-bold text-primary">AP</span>
+                  <span className="text-lg font-bold text-primary">KP</span>
                 </div>
                 <div>
-                  <h3 className="font-medium">Amina Patel</h3>
-                  <p className="text-sm text-muted-foreground">Lead Security Engineer</p>
+                  <h3 className="font-medium">Keerthan Poovaiah M M</h3>
+                  <p className="text-sm text-muted-foreground">Backend Engineer</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Security engineer with expertise in threat intelligence
+                    Software developer with a passion for cybersecurity and privacy
                   </p>
                 </div>
               </div>
               <div className="flex gap-4 items-center">
                 <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-lg font-bold text-primary">DO</span>
+                  <span className="text-lg font-bold text-primary">SK</span>
                 </div>
                 <div>
-                  <h3 className="font-medium">David Okafor</h3>
-                  <p className="text-sm text-muted-foreground">Head of User Experience</p>
+                  <h3 className="font-medium">Srikara K</h3>
+                  <p className="text-sm text-muted-foreground">UI UX specialist</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     UX designer focused on making security accessible to all
                   </p>
