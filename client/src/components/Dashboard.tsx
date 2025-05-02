@@ -15,11 +15,8 @@ import {
   ChevronRight,
   CheckCircle2,
   XCircle,
-  Info,
-  Sparkles,
   Zap,
   ShieldCheck,
-  AlertCircle,
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Modal } from './ui/Modal';
@@ -276,7 +273,7 @@ export const Dashboard = () => {
             variants={containerVariants}
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
           >
-            {securityMetrics.map((metric, index) => (
+            {securityMetrics.map((metric) => (
               <motion.div
                 key={metric.title}
                 variants={itemVariants}
@@ -532,4 +529,4 @@ export const Dashboard = () => {
       </div>
     </div>
   );
-}; 
+};

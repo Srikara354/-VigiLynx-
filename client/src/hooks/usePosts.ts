@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../supabase';
-import { Post, PostState, CreatePostInput } from '../types/community';
+import { PostState, CreatePostInput } from '../types/community';
 import { sanitizeHtml } from '../utils/sanitize';
 
 const POSTS_PER_PAGE = 10;
@@ -103,8 +103,7 @@ export const usePosts = (userId: string | null) => {
 
     const isLiked = state.likedPosts.has(postId);
     const newLikes = isLiked ? post.likes - 1 : post.likes + 1;
-    const newLikedPosts = new Set(state.likedPosts);
-
+    
     // Optimistic update
     setState(prev => ({
       ...prev,
@@ -157,4 +156,4 @@ export const usePosts = (userId: string | null) => {
     handleLike,
     fetchPosts,
   };
-}; 
+};

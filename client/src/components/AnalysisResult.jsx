@@ -10,8 +10,8 @@ const AnalysisResult = memo(function AnalysisResult({ result }) {
     const color = getSeverityColor(score);
     return (
       <div className="flex items-center gap-2">
-        <div className={`h-2 w-2 rounded-full bg-${color}`}></div>
-        <span className={`text-${color} font-medium`}>
+        <div className={`h-2 w-2 rounded-full ${color === 'danger' ? 'bg-danger' : color === 'warning' ? 'bg-warning' : 'bg-success'}`}></div>
+        <span className={`${color === 'danger' ? 'text-danger' : color === 'warning' ? 'text-warning' : 'text-success'} font-medium`}>
           {score >= 7 ? 'High' : score >= 4 ? 'Medium' : 'Low'} Risk
         </span>
       </div>
@@ -139,10 +139,7 @@ const AnalysisResult = memo(function AnalysisResult({ result }) {
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min(100, Math.max(0, (result.risk_score || 0) * 10))}%` }}
                   transition={{ duration: 0.8, type: "spring" }}
-                  className={cn(
-                    "h-full", 
-                    `bg-${getSeverityColor(result.risk_score || 0)}`
-                  )}
+                  className={`h-full ${getSeverityColor(result.risk_score || 0) === 'danger' ? 'bg-danger' : getSeverityColor(result.risk_score || 0) === 'warning' ? 'bg-warning' : 'bg-success'}`}
                 />
               </div>
               <div className="mt-1 text-2xl font-bold">{result.risk_score || 0}/10</div>
@@ -164,7 +161,7 @@ const AnalysisResult = memo(function AnalysisResult({ result }) {
           <div className="card card-compact bg-secondary/30">
             <div className="text-sm font-medium mb-1">Detection Status</div>
             <div className="flex items-center gap-2">
-              <Shield size={18} className={cn(`text-${getSeverityColor(result.risk_score || 0)}`)} />
+              <Shield size={18} className={`${getSeverityColor(result.risk_score || 0) === 'danger' ? 'text-danger' : getSeverityColor(result.risk_score || 0) === 'warning' ? 'text-warning' : 'text-success'}`} />
               <span className="font-medium">
                 {result.threats?.length ? `${result.threats.length} Threats Detected` : 'No Threats Detected'}
               </span>

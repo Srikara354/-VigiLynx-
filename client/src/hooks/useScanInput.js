@@ -1,113 +1,108 @@
-import { useState, useReducer, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { validateInput } from '../lib/utils';
-import { supabase } from '../../supabase';
-import axios from 'axios';
-import debounce from 'lodash/debounce';
 import { scanUrl, scanFile } from '../lib/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-// Reducer for complex scan state
-const scanReducer = (state, action) => {
-  switch (action.type) {
-    case 'SET_INPUT_TYPE':
-      return { ...state, inputType: action.payload, error: null };
-    case 'SET_INPUT':
-      return { ...state, input: action.payload, error: null };
-    case 'SET_FILE':
-      return { ...state, file: action.payload, error: null };
-    case 'CLEAR_FILE':
-      return { ...state, file: null, error: null, isValid: null };
-    case 'SET_VALIDATION':
-      return { ...state, isValid: action.payload };
-    case 'SCAN_START':
-      return { ...state, loading: true, error: null, result: null };
-    case 'SCAN_SUCCESS':
-      return { ...state, loading: false, result: action.payload };
-    case 'SCAN_ERROR':
-      return { ...state, loading: false, error: action.payload };
-    case 'RESET':
-      return { ...initialScanState };
-    default:
-      return state;
-  }
-};
-
-const initialScanState = {
-  inputType: 'scan',
-  input: '',
-  file: null,
-  loading: false,
-  result: null,
-  error: null,
-  isValid: null
-};
-
 export function useScanInput() {
-  const [state, dispatch] = useReducer(scanReducer, initialScanState);
-  
-  // Use debounced validation to avoid excessive validation calls
-  const debouncedValidate = useCallback(
-    debounce((value, type) => {
-      const isValid = validateInput(value, type);
-      dispatch({ type: 'SET_VALIDATION', payload: isValid });
-    }, 300),
-    []
-  );
+  const [inputType, setInputType] = useState('scan');
+  const [input, setInput] = useState('');
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [isValid, setIsValid] = useState(null);
 
-  const setInputType = (type) => {
-    dispatch({ type: 'SET_INPUT_TYPE', payload: type });
-  };
-
-  const setInput = (value) => {
-    dispatch({ type: 'SET_INPUT', payload: value });
-    debouncedValidate(value, 'scan');
+  const handleInputChange = (value) => {
+    setInput(value);
+    setError(null);
+    setIsValid(validateInput(value, 'scan'));
   };
 
   const handleFileUpload = (e) => {
     if (e.target.files && e.target.files[0]) {
-      dispatch({ type: 'SET_FILE', payload: e.target.files[0] });
-      debouncedValidate(e.target.files[0], 'file');
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      setError(null);
+      setIsValid(true); // Assume any file is valid initially
     }
   };
 
   const clearFile = () => {
-    dispatch({ type: 'CLEAR_FILE' });
+    setFile(null);
+    setIsValid(null);
+    setError(null);
   };
 
   const handleAnalyze = async (e) => {
     e.preventDefault();
-    if (!state.isValid) {
-      dispatch({ 
-        type: 'SCAN_ERROR', 
-        payload: `Please enter a valid ${state.inputType === 'scan' ? 'URL, domain, hash, or IP' : 'file'}` 
-      });
+    setError(null);
+    
+    if (!isValid) {
+      setError(`Please enter a valid ${inputType === 'scan' ? 'URL, domain, hash, or IP' : 'file'}`);
       return;
     }
 
-    dispatch({ type: 'SCAN_START' });
-
+    setLoading(true);
+    setResult(null);
+    
     try {
-      let result;
-      if (state.inputType === 'scan') {
-        result = await scanUrl(state.input);
-      } else if (state.inputType === 'file') {
-        result = await scanFile(state.file, (progress) => {
-          // Optional: handle upload progress
-        });
+      console.log(`Starting analysis for ${inputType}:`, inputType === 'scan' ? input : file.name);
+      
+      let apiResult;
+      if (inputType === 'scan') {
+        apiResult = await scanUrl(input);
+        console.log('Scan URL response:', apiResult);
+      } else {
+        apiResult = await scanFile(file);
+        console.log('Scan file response:', apiResult);
       }
-      dispatch({ type: 'SCAN_SUCCESS', payload: result });
+      
+      // Transform API response to match AnalysisResult component expectations
+      const transformedResult = {
+        scan_id: apiResult.recordId || 'unknown',
+        target: inputType === 'scan' ? input : file.name,
+        input_type: inputType,
+        risk_score: apiResult.safetyScore ? 10 - (apiResult.safetyScore / 10) : 5,
+        timestamp: new Date().toISOString(),
+        summary: apiResult.geminiInsights || 'No detailed analysis available',
+        threats: apiResult.vtStats?.malicious > 0 || apiResult.vtStats?.suspicious > 0 ? 
+          [{
+            name: 'Potential security threat',
+            category: apiResult.vtStats?.malicious > 0 ? 'Malicious' : 'Suspicious',
+            description: `Detected by ${apiResult.vtStats?.malicious || 0} security vendors as malicious and ${apiResult.vtStats?.suspicious || 0} as suspicious.`
+          }] : [],
+        recommendation: apiResult.isSafe ? 
+          'This item appears to be safe based on our analysis.' : 
+          'Exercise caution when interacting with this item. It may contain security risks.',
+        source: 'CyberGuard Scanner'
+      };
+
+      // Add file-specific properties if it's a file scan
+      if (inputType === 'file' && file) {
+        transformedResult.file_name = file.name;
+        transformedResult.file_type = file.type || 'Unknown';
+        transformedResult.file_size = file.size;
+      }
+      
+      console.log('Transformed result:', transformedResult);
+      setResult(transformedResult);
     } catch (err) {
-      const errorMessage = err.message || `Failed to analyze ${state.inputType}. Please try again.`;
-      dispatch({ type: 'SCAN_ERROR', payload: errorMessage });
       console.error('Analysis error:', err);
+      setError(err.message || `Failed to analyze ${inputType}. Please try again.`);
+    } finally {
+      setLoading(false);
     }
   };
 
   return {
-    ...state,
+    inputType,
+    input,
+    file,
+    loading,
+    result,
+    error,
+    isValid,
     setInputType,
-    setInput,
+    setInput: handleInputChange,
     handleFileUpload,
     clearFile,
     handleAnalyze

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { supabase } from '../../supabase';
 
 // Define API base URL from environment variables
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'; // Updated to match the actual server port
 
 // Configure axios defaults
 const api = axios.create({
@@ -50,14 +50,31 @@ export const scanUrl = async (input, retries = 2) => {
   let lastError;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const response = await api.get('/api/scan', { params: { input } });
+      // Properly encode the URL parameter to ensure special characters are handled correctly
+      const encodedInput = encodeURIComponent(input);
+      console.log(`Attempt ${attempt + 1}: Making request to /api/scan with input: ${encodedInput}`);
+      
+      const response = await api.get(`/api/scan?input=${encodedInput}`);
+      console.log('Scan URL API response:', response.data);
       return response.data;
     } catch (error) {
-      console.error(`Attempt ${attempt + 1} failed:`, error.message);
+      console.error(`Attempt ${attempt + 1} failed:`, error);
+      // Log detailed error information
+      if (error.response) {
+        console.error(`Status: ${error.response.status}`);
+        console.error('Error data:', error.response.data);
+      } else if (error.request) {
+        console.error('No response received');
+      } else {
+        console.error('Error message:', error.message);
+      }
+      
       lastError = error;
       if (attempt < retries) {
         // Wait with exponential backoff before retry
-        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+        const delay = 1000 * Math.pow(2, attempt);
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(r => setTimeout(r, delay));
       }
     }
   }

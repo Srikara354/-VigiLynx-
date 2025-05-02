@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, FileText, AlertCircle, ArrowRight, Shield, X, FileType, Check, Upload } from 'lucide-react';
 import { useScanInput } from '../hooks/useScanInput';
@@ -7,10 +7,29 @@ import AnalysisResult from './AnalysisResult';
 
 function CyberGuard() {
   const fileInputRef = useRef(null);
+  const [formError, setFormError] = useState(null);
   const { 
     inputType, input, file, loading, result, error, isValid,
     setInputType, setInput, handleFileUpload, clearFile, handleAnalyze 
   } = useScanInput();
+
+  // Add debug logging
+  useEffect(() => {
+    console.log('CyberGuard component state:', { 
+      inputType, 
+      input, 
+      file: file ? `File: ${file.name}` : 'No file', 
+      loading, 
+      result, 
+      error, 
+      isValid 
+    });
+    
+    // Display API errors in the form error
+    if (error) {
+      setFormError(error);
+    }
+  }, [inputType, input, file, loading, result, error, isValid]);
 
   const renderFileDetails = () => {
     if (!file) return null;
@@ -40,6 +59,23 @@ function CyberGuard() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
     exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setFormError(null);
+    
+    if (!isValid) {
+      setFormError(`Please enter a valid ${inputType === 'scan' ? 'URL, domain, hash, or IP' : 'file'}`);
+      return;
+    }
+    
+    try {
+      await handleAnalyze(e);
+    } catch (err) {
+      console.error('Analysis error:', err);
+      setFormError(err.message || 'Failed to analyze. Please try again.');
+    }
   };
 
   return (
@@ -101,7 +137,7 @@ function CyberGuard() {
         </button>
       </div>
       
-      <form onSubmit={handleAnalyze} className="w-full max-w-lg space-y-6 mt-8">
+      <form onSubmit={handleFormSubmit} className="w-full max-w-lg space-y-6 mt-8">
         <AnimatePresence mode="wait">
           {inputType === 'scan' ? (
             <motion.div
@@ -206,11 +242,11 @@ function CyberGuard() {
         </AnimatePresence>
         
         <AnimatePresence>
-          {error && (
+          {formError && (
             <AlertMessage
               variant="error"
-              message={error}
-              onDismiss={() => setError(null)}
+              message={formError}
+              onDismiss={() => setFormError(null)}
             />
           )}
         </AnimatePresence>

@@ -6,13 +6,11 @@ import {
   Share2,
   Bookmark,
   MoreHorizontal,
-  Send,
   Image as ImageIcon,
   Link as LinkIcon,
   Hash,
   X,
 } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
 
 interface Post {
   id: number;
@@ -32,7 +30,6 @@ interface Post {
 }
 
 export const CommunityPosts = () => {
-  const { theme } = useTheme();
   const [posts, setPosts] = useState<Post[]>([
     {
       id: 1,
@@ -327,4 +324,4 @@ export const CommunityPosts = () => {
       </motion.div>
     </div>
   );
-}; 
+};

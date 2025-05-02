@@ -16,7 +16,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: process.env.CLIENT_URL || 'http://localhost:5173', methods: ['GET', 'POST'] },
 });
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001; // Changed from 5000 to 5001 to avoid conflicts
 
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
@@ -211,7 +211,7 @@ app.get(
     query('input')
       .notEmpty().withMessage('Input is required')
       .trim()
-      .escape()
+      // Remove .escape() to avoid mangling URLs with special characters
       .isLength({ max: 2000 }).withMessage('Input exceeds maximum length'),
   ]),
   async (req, res, next) => {
@@ -220,7 +220,8 @@ app.get(
 
     try {
       let type;
-      const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?(\?.*)?$/;
+      // Updated URL pattern to be more permissive and handle more URL formats
+      const urlPattern = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]\.)+[a-zA-Z0-9]{2,}(\/[-a-zA-Z0-9()@:%_\+.~#?&//=]*)?$/i;
       if (urlPattern.test(input)) type = 'URL';
       else if (/^[a-fA-F0-9]{32}$|^[a-fA-F0-9]{40}$|^[a-fA-F0-9]{64}$/.test(input)) type = 'Hash';
       else if (/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/.test(input)) type = 'Domain';

@@ -7,6 +7,7 @@ import { CommunityPosts } from '@/components/CommunityPosts';
 import { Suspense, lazy } from 'react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import CyberNews from '@/components/CyberNews';  // Import CyberNews component
 
 // Lazy load components for better performance
 const Reports = lazy(() => import('@/components/Reports'));
@@ -113,6 +114,20 @@ export const App = () => {
                       }
                     />
                     <Route
+                      path="/news"
+                      element={
+                        <motion.div
+                          key="news"
+                          initial="initial"
+                          animate="animate"
+                          exit="exit"
+                          variants={pageVariants}
+                        >
+                          <CyberNews />
+                        </motion.div>
+                      }
+                    />
+                    <Route
                       path="/settings"
                       element={
                         <motion.div
@@ -149,4 +164,4 @@ export const App = () => {
       </QueryClientProvider>
     </ThemeProvider>
   );
-}; 
+};

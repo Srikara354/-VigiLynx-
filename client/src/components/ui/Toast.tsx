@@ -27,7 +27,7 @@ const styles = {
   info: 'bg-blue-50 text-blue-800',
 };
 
-export const Toast = ({ show, onClose, title, message, type = 'success', duration = 5000, className }: ToastProps) => {
+export const Toast = ({ show, onClose, title, message, type = 'success', className }: ToastProps) => {
   const Icon = icons[type];
 
   return (
@@ -73,4 +73,4 @@ export const Toast = ({ show, onClose, title, message, type = 'success', duratio
       </div>
     </div>
   );
-}; 
+};

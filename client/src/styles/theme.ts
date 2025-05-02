@@ -1,5 +1,3 @@
-import { type Config } from 'tailwindcss';
-
 export const theme = {
   colors: {
     primary: {
@@ -226,4 +224,4 @@ export const theme = {
   },
 } as const;
 
-export default theme; 
+export default theme;

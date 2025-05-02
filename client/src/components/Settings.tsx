@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
-export const Settings = () => {
+const Settings = () => {
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [autoScan, setAutoScan] = useState(true);
@@ -97,4 +97,6 @@ export const Settings = () => {
       </motion.div>
     </div>
   );
-}; 
+};
+
+export default Settings;

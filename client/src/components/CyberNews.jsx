@@ -1,21 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import './CybersecurityNews.css';
 
-const CybersecurityNews = () => {
+const CyberNews = () => {
   const [newsItems, setNewsItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6; // Number of news items per page
 
-  const API_URL = `${import.meta.env.VITE_API_URL}/api/news`;
+  // Use the News API directly instead of going through a backend
+  const API_KEY = import.meta.env.VITE_NEWS_API_KEY;
+  const NEWS_API_URL = `https://newsapi.org/v2/everything?q=cybersecurity&apiKey=${API_KEY}&pageSize=30&language=en&sortBy=publishedAt`;
 
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Failed to fetch news');
+        const response = await fetch(NEWS_API_URL);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch news');
+        }
+        
         const data = await response.json();
+        
+        if (data.status === 'error') {
+          throw new Error(data.message || 'API returned an error');
+        }
+        
         const formattedNews = data.articles.map((article, index) => ({
           id: index,
           title: article.title,
@@ -24,16 +35,18 @@ const CybersecurityNews = () => {
           link: article.url,
           date: new Date(article.publishedAt).toLocaleDateString()
         }));
+        
         setNewsItems(formattedNews);
         setLoading(false);
       } catch (err) {
+        console.error('News API Error:', err);
         setError(err.message);
         setLoading(false);
       }
     };
 
     fetchNews();
-  }, []);
+  }, [NEWS_API_URL]);
 
   // Calculate pagination
   const totalPages = Math.ceil(newsItems.length / itemsPerPage);
@@ -138,4 +151,4 @@ const CybersecurityNews = () => {
   );
 };
 
-export default CybersecurityNews;
+export default CyberNews;
