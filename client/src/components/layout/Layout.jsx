@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import MobileSidebar from './MobileSidebar';
+import RightMenu from './RightMenu';
 import ErrorBoundary from '../ui/ErrorBoundary';
 import LoadingScreen from '../LoadingScreen';
 
@@ -53,6 +54,9 @@ function Layout({ children }) {
 
           {/* Desktop sidebar */}
           <Sidebar view={view} setView={setView} />
+
+          {/* Right-side hamburger menu */}
+          <RightMenu />
 
           {/* Main content area */}
           <main className="main-container custom-scrollbar">

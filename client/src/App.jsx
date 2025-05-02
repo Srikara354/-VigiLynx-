@@ -14,6 +14,7 @@ import {
   User,
   KeyRound
 } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route, useLocation, useSearchParams } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { useAuth } from './contexts/AuthContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -29,8 +30,21 @@ import ThreatDashboard from './components/ThreatDashboard';
 import AlertMessage from './components/ui/AlertMessage';
 import PasswordChecker from './pages/PasswordChecker';
 
+// Pages
+import AboutUs from './pages/AboutUs';
+import ContactUs from './pages/ContactUs';
+
 function MainContent({ view, setView }) {
   const { isLoggedIn, userType, authError } = useAuth();
+  const [searchParams] = useSearchParams();
+  
+  // Handle URL parameter for view
+  useEffect(() => {
+    const viewParam = searchParams.get('view');
+    if (viewParam && ['cyberguard', 'parental', 'community', 'threat', 'password-checker'].includes(viewParam)) {
+      setView(viewParam);
+    }
+  }, [searchParams, setView]);
   
   // Restricted access component
   const RestrictedAccess = ({ title, description, backToMain }) => (
@@ -116,13 +130,32 @@ function MainContent({ view, setView }) {
   );
 }
 
+// Wrapper component to maintain consistent layout for standalone pages
+function PageWithLayout({ Component }) {
+  // Using a dummy view value that doesn't trigger any specific content in MainContent
+  return (
+    <Layout>
+      {(view, setView) => <Component />}
+    </Layout>
+  );
+}
+
 function App() {
   return (
-    <AuthProvider>
-      <Layout>
-        {(view, setView) => <MainContent view={view} setView={setView} />}
-      </Layout>
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/about-us" element={<PageWithLayout Component={AboutUs} />} />
+          <Route path="/contact-us" element={<PageWithLayout Component={ContactUs} />} />
+          <Route path="/cyber-news" element={<PageWithLayout Component={CyberNews} />} />
+          <Route path="*" element={
+            <Layout>
+              {(view, setView) => <MainContent view={view} setView={setView} />}
+            </Layout>
+          } />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 

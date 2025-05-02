@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, ThumbsUp, ThumbsDown, AlertTriangle, X, Filter, Send, Trash2, Share } from 'lucide-react';
+import { MessageSquare, ThumbsUp, ThumbsDown, AlertTriangle, X, Filter, Send, Trash2, Share, Menu, Info, Mail } from 'lucide-react';
 import { supabase } from '../../supabase';
 import { sanitizeContent } from '../lib/utils';
 import AlertMessage from './ui/AlertMessage';
@@ -18,6 +18,7 @@ function CommunityPosts() {
   const [page, setPage] = useState(0);
   const [likedPosts, setLikedPosts] = useState(new Set());
   const [dislikedPosts, setDislikedPosts] = useState(new Set());
+  const [menuOpen, setMenuOpen] = useState(false);
   const postsPerPage = 10;
 
   const fetchPosts = useCallback(async (resetPosts = false) => {

@@ -1,13 +1,11 @@
 import { motion } from 'framer-motion';
-import { ChevronRight, Shield, Users, Newspaper, MessageSquare, LineChart, KeyRound } from 'lucide-react';
+import { ChevronRight, Shield, Users, LineChart, KeyRound } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 // No need for useNavigate and routeMap since we're using a view-based system
 const navigationItems = [
   { id: 'cyberguard', label: 'CyberGuard', icon: <Shield size={20} /> },
   { id: 'parental', label: 'Parental Monitor', icon: <Users size={20} /> },
-  { id: 'news', label: 'Cybersecurity News', icon: <Newspaper size={20} /> },
-  { id: 'community', label: 'Community', icon: <MessageSquare size={20} /> },
   { id: 'threat', label: 'Threat Dashboard', icon: <LineChart size={20} /> },
   { id: 'password-checker', label: 'Password Checker', icon: <KeyRound size={20} /> },
 ];
