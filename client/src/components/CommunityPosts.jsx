@@ -16,6 +16,8 @@ function CommunityPosts() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
+  const [likedPosts, setLikedPosts] = useState(new Set());
+  const [dislikedPosts, setDislikedPosts] = useState(new Set());
   const postsPerPage = 10;
 
   const fetchPosts = useCallback(async (resetPosts = false) => {
@@ -27,6 +29,29 @@ function CommunityPosts() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setCurrentUser(session.user);
+        
+        // Fetch user's votes if logged in
+        const { data: userVotes, error: votesError } = await supabase
+          .from('post_votes')
+          .select('post_id, vote_type')
+          .eq('user_id', session.user.id);
+          
+        if (!votesError && userVotes) {
+          // Process user votes into the appropriate sets
+          const likes = new Set();
+          const dislikes = new Set();
+          
+          userVotes.forEach(vote => {
+            if (vote.vote_type === 'like') {
+              likes.add(vote.post_id);
+            } else if (vote.vote_type === 'dislike') {
+              dislikes.add(vote.post_id);
+            }
+          });
+          
+          setLikedPosts(likes);
+          setDislikedPosts(dislikes);
+        }
       }
 
       // Get posts with pagination - Using community_posts table as defined in usePosts.ts
@@ -163,42 +188,133 @@ function CommunityPosts() {
   };
 
   const handleVote = async (postId, voteType) => {
+    if (!currentUser) {
+      setError('You must be logged in to vote on posts.');
+      return;
+    }
+
+    // First, disable the button to prevent multiple clicks
+    const postIndex = posts.findIndex(p => p.id === postId);
+    if (postIndex === -1) return;
+    
+    const post = posts[postIndex];
+    const originalPost = { ...post };
+    
+    // Determine current vote state
+    const hasLiked = likedPosts.has(postId);
+    const hasDisliked = dislikedPosts.has(postId);
+    
+    // Clone current state to avoid race conditions
+    let updatedLikedPosts = new Set([...likedPosts]);
+    let updatedDislikedPosts = new Set([...dislikedPosts]);
+    
+    // Calculate new values
+    let likesValue = post.likes || 0;
+    let dislikesValue = post.dislikes || 0;
+    
+    // Logic for vote action
     try {
-      const post = posts.find(p => p.id === postId);
-      
-      if (!post) return;
-      
-      // Optimistic update
-      setPosts(prevPosts => 
-        prevPosts.map(p => {
-          if (p.id === postId) {
-            return {
-              ...p, 
-              [voteType === 'like' ? 'likes' : 'dislikes']: p[voteType === 'like' ? 'likes' : 'dislikes'] + 1
-            };
+      if (voteType === 'like') {
+        if (hasLiked) {
+          // Undo like
+          likesValue = Math.max(0, likesValue - 1);
+          updatedLikedPosts.delete(postId);
+          await supabase.from('post_votes')
+            .delete()
+            .eq('user_id', currentUser.id)
+            .eq('post_id', postId);
+        } else {
+          // Add like
+          likesValue += 1;
+          updatedLikedPosts.add(postId);
+          
+          // Remove dislike if exists
+          if (hasDisliked) {
+            dislikesValue = Math.max(0, dislikesValue - 1);
+            updatedDislikedPosts.delete(postId);
           }
-          return p;
-        })
-      );
+          
+          // Delete any existing votes first
+          await supabase.from('post_votes')
+            .delete()
+            .eq('user_id', currentUser.id)
+            .eq('post_id', postId);
+            
+          // Add the new vote
+          await supabase.from('post_votes')
+            .insert([{
+              user_id: currentUser.id,
+              post_id: postId,
+              vote_type: 'like'
+            }]);
+        }
+      } else if (voteType === 'dislike') {
+        if (hasDisliked) {
+          // Undo dislike
+          dislikesValue = Math.max(0, dislikesValue - 1);
+          updatedDislikedPosts.delete(postId);
+          await supabase.from('post_votes')
+            .delete()
+            .eq('user_id', currentUser.id)
+            .eq('post_id', postId);
+        } else {
+          // Add dislike
+          dislikesValue += 1;
+          updatedDislikedPosts.add(postId);
+          
+          // Remove like if exists
+          if (hasLiked) {
+            likesValue = Math.max(0, likesValue - 1);
+            updatedLikedPosts.delete(postId);
+          }
+          
+          // Delete any existing votes first
+          await supabase.from('post_votes')
+            .delete()
+            .eq('user_id', currentUser.id)
+            .eq('post_id', postId);
+            
+          // Add the new vote
+          await supabase.from('post_votes')
+            .insert([{
+              user_id: currentUser.id,
+              post_id: postId,
+              vote_type: 'dislike'
+            }]);
+        }
+      }
       
-      // Using community_posts table
-      const { error } = await supabase
-        .from('community_posts')
-        .update({ 
-          [voteType === 'like' ? 'likes' : 'dislikes']: voteType === 'like' ? post.likes + 1 : post.dislikes + 1 
+      // Update post values in database
+      await supabase.from('community_posts')
+        .update({
+          likes: likesValue,
+          dislikes: dislikesValue
         })
         .eq('id', postId);
       
-      if (error) {
-        // Revert on error
-        setPosts(prevPosts => 
-          prevPosts.map(p => p.id === postId ? post : p)
-        );
-        throw error;
-      }
+      // Update local state atomically after all async operations
+      setLikedPosts(updatedLikedPosts);
+      setDislikedPosts(updatedDislikedPosts);
+      setPosts(currentPosts => {
+        const updatedPosts = [...currentPosts];
+        updatedPosts[postIndex] = {
+          ...updatedPosts[postIndex],
+          likes: likesValue,
+          dislikes: dislikesValue
+        };
+        return updatedPosts;
+      });
+      
     } catch (err) {
       console.error('Error updating votes:', err);
       setError('Failed to record vote. Please try again.');
+      
+      // Revert to original state on error
+      setPosts(currentPosts => {
+        const updatedPosts = [...currentPosts];
+        updatedPosts[postIndex] = originalPost;
+        return updatedPosts;
+      });
     }
   };
 
@@ -334,20 +450,28 @@ function CommunityPosts() {
                     <div className="flex items-center gap-4 pt-4 border-t border-border">
                       <button 
                         onClick={() => handleVote(post.id, 'like')}
-                        className="flex items-center gap-1 text-sm hover:text-primary transition-all-normal"
+                        className={`flex items-center gap-1 text-sm transition-all-normal ${
+                          likedPosts.has(post.id) 
+                            ? 'text-primary font-medium' 
+                            : 'hover:text-primary'
+                        }`}
                         disabled={post.isOptimistic}
                       >
-                        <ThumbsUp size={16} />
+                        <ThumbsUp size={16} className={likedPosts.has(post.id) ? "fill-primary" : ""} />
                         <span>{post.likes}</span>
                       </button>
                       
                       <button 
                         onClick={() => handleVote(post.id, 'dislike')}
-                        className="flex items-center gap-1 text-sm hover:text-danger transition-all-normal"
+                        className={`flex items-center gap-1 text-sm transition-all-normal ${
+                          dislikedPosts.has(post.id) 
+                            ? 'text-danger font-medium' 
+                            : 'hover:text-danger'
+                        }`}
                         disabled={post.isOptimistic}
                       >
-                        <ThumbsDown size={16} />
-                        <span>{post.dislikes}</span>
+                        <ThumbsDown size={16} className={dislikedPosts.has(post.id) ? "fill-danger" : ""} />
+                        <span>{post.dislikes || 0}</span>
                       </button>
                       
                       <button 
