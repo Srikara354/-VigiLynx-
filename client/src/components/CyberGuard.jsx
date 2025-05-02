@@ -4,6 +4,7 @@ import { ShieldCheck, FileText, AlertCircle, ArrowRight, Shield, X, FileType, Ch
 import { useScanInput } from '../hooks/useScanInput';
 import AlertMessage from './ui/AlertMessage';
 import AnalysisResult from './AnalysisResult';
+import cyberFacts from './cyber_facts';
 
 function CyberGuard() {
   const fileInputRef = useRef(null);
@@ -12,6 +13,65 @@ function CyberGuard() {
     inputType, input, file, loading, result, error, isValid,
     setInputType, setInput, handleFileUpload, clearFile, handleAnalyze 
   } = useScanInput();
+
+  // Cyber facts state
+  const [shownFacts, setShownFacts] = useState([]);
+  const [currentFact, setCurrentFact] = useState(null);
+  const intervalRef = useRef(null);
+  const timeoutRef = useRef(null);
+
+  // Helper to get a random, non-repeating fact index
+  const getRandomFactIdx = (used) => {
+    if (used.length === cyberFacts.length) return null;
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * cyberFacts.length);
+    } while (used.includes(idx));
+    return idx;
+  };
+
+  // Start cycling facts: first after 1s, then every 4s, only while loading
+  useEffect(() => {
+    if (loading) {
+      // Reset facts and timers
+      setShownFacts([]);
+      setCurrentFact(null);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      let used = [];
+      const showNextFact = () => {
+        if (used.length === cyberFacts.length) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          return;
+        }
+        const idx = getRandomFactIdx(used);
+        if (idx === null) return;
+        used.push(idx);
+        setShownFacts([...used]);
+        setCurrentFact(cyberFacts[idx]);
+      };
+      // Show first fact after 1s
+      timeoutRef.current = setTimeout(() => {
+        showNextFact();
+        // Then every 4s
+        intervalRef.current = setInterval(showNextFact, 4000);
+      }, 1000);
+    } else {
+      // Stop facts when loading is false
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      intervalRef.current = null;
+      timeoutRef.current = null;
+      setCurrentFact(null);
+      setShownFacts([]);
+    }
+    // Cleanup on unmount
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [loading]);
 
   // Add debug logging
   useEffect(() => {
@@ -72,6 +132,7 @@ function CyberGuard() {
     
     try {
       await handleAnalyze(e);
+      // No need to start fact cycle here, it's handled by loading effect
     } catch (err) {
       console.error('Analysis error:', err);
       setFormError(err.message || 'Failed to analyze. Please try again.');
@@ -274,6 +335,19 @@ function CyberGuard() {
         </motion.button>
       </form>
       
+      {/* Show cybersecurity fact after analysis */}
+      {currentFact && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.5 }}
+          className="mt-6 w-full max-w-lg text-center p-4 bg-accent/10 rounded shadow"
+        >
+          <span className="font-semibold text-primary">Cyber Fact:</span> {currentFact}
+        </motion.div>
+      )}
+
       <AnimatePresence>
         {result && (
           <motion.div
