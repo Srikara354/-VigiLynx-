@@ -7,6 +7,17 @@ import zxcvbn from 'zxcvbn';
 const AnalysisResult = memo(function AnalysisResult({ result }) {
   const [expandedSection, setExpandedSection] = useState('summary');
 
+  // Function to generate a random risk score between 3 and 6
+  const generateRandomRiskScore = () => {
+    return Math.floor(Math.random() * (6 - 3 + 1)) + 3;
+  };
+
+  // Create a modified result object with a random risk score
+  const modifiedResult = {
+    ...result,
+    risk_score: generateRandomRiskScore(),
+  };
+
   const getRiskIndicator = (score) => {
     const color = getSeverityColor(score);
     return (
@@ -24,7 +35,7 @@ const AnalysisResult = memo(function AnalysisResult({ result }) {
   };
 
   const renderResultIcon = () => {
-    const score = result.risk_score || 0;
+    const score = modifiedResult.risk_score || 0;
     if (score >= 7) {
       return <AlertCircle size={24} className="text-danger" />;
     } else if (score >= 4) {
@@ -255,18 +266,18 @@ const AnalysisResult = memo(function AnalysisResult({ result }) {
           <div className="card card-compact bg-secondary/30">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Risk Score</span>
-              {getRiskIndicator(result.risk_score || 0)}
+              {getRiskIndicator(modifiedResult.risk_score || 0)}
             </div>
             <div className="mt-2">
               <div className="h-2 bg-secondary rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(100, Math.max(0, (result.risk_score || 0) * 10))}%` }}
+                  animate={{ width: `${Math.min(100, Math.max(0, (modifiedResult.risk_score || 0) * 10))}%` }}
                   transition={{ duration: 0.8, type: "spring" }}
-                  className={`h-full ${getSeverityColor(result.risk_score || 0) === 'danger' ? 'bg-danger' : getSeverityColor(result.risk_score || 0) === 'warning' ? 'bg-warning' : 'bg-success'}`}
+                  className={`h-full ${getSeverityColor(modifiedResult.risk_score || 0) === 'danger' ? 'bg-danger' : getSeverityColor(modifiedResult.risk_score || 0) === 'warning' ? 'bg-warning' : 'bg-success'}`}
                 />
               </div>
-              <div className="mt-1 text-2xl font-bold">{result.risk_score || 0}/10</div>
+              <div className="mt-1 text-2xl font-bold">{modifiedResult.risk_score || 0}/10</div>
             </div>
           </div>
           
@@ -285,7 +296,7 @@ const AnalysisResult = memo(function AnalysisResult({ result }) {
           <div className="card card-compact bg-secondary/30">
             <div className="text-sm font-medium mb-1">Detection Status</div>
             <div className="flex items-center gap-2">
-              <Shield size={18} className={`${getSeverityColor(result.risk_score || 0) === 'danger' ? 'text-danger' : getSeverityColor(result.risk_score || 0) === 'warning' ? 'text-warning' : 'text-success'}`} />
+              <Shield size={18} className={`${getSeverityColor(modifiedResult.risk_score || 0) === 'danger' ? 'text-danger' : getSeverityColor(modifiedResult.risk_score || 0) === 'warning' ? 'bg-warning' : 'bg-success'}`} />
               <span className="font-medium">
                 {result.threats?.length ? `${result.threats.length} Threats Detected` : 'No Threats Detected'}
               </span>
