@@ -64,9 +64,15 @@ export function getBreachMessage(isBreached: boolean): string {
  * @param userId - The user's ID
  * @param password - The password to save
  * @param label - A user-friendly label for the password (e.g., "GitHub Account")
+ * @param username - The username associated with this password (optional)
  * @returns A promise that resolves when the password is saved
  */
-export async function savePassword(userId: string, password: string, label: string): Promise<{data: any, error: any}> {
+export async function savePassword(
+  userId: string, 
+  password: string, 
+  label: string,
+  username?: string
+): Promise<{data: any, error: any}> {
   try {
     // Don't save passwords for guest users
     if (!userId) {
@@ -81,6 +87,7 @@ export async function savePassword(userId: string, password: string, label: stri
           user_id: userId, 
           password_label: label,
           password_value: password,
+          username: username || null,
           created_at: new Date().toISOString() 
         }
       ]);

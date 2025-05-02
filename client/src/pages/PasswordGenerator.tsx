@@ -1,9 +1,29 @@
 import { useState, useRef, useEffect } from 'react';
 import { Copy, RefreshCw, Check, Lock, AlertTriangle, X, Save, List, Trash2, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import zxcvbn from 'zxcvbn';
+// @ts-ignore
+import zxcvbn from 'zxcvbn'; // Add ts-ignore to bypass the module import error
 import { useAuth } from '../contexts/AuthContext';
 import { savePassword, getSavedPasswords, deleteSavedPassword } from '../utils/passwordSecurity';
+
+// Define interface for saved password
+interface SavedPassword {
+  id: string;
+  user_id: string;
+  password_label: string;
+  password_value: string;
+  username?: string;
+  created_at: string;
+}
+
+// Define interface for password strength result
+interface PasswordStrength {
+  score: number;
+  feedback: {
+    warning?: string;
+    suggestions?: string[];
+  };
+}
 
 const PasswordGenerator = () => {
   const [password, setPassword] = useState('');
@@ -13,17 +33,18 @@ const PasswordGenerator = () => {
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [copied, setCopied] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(null);
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null);
   
   // Add states for saving passwords
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [passwordLabel, setPasswordLabel] = useState('');
+  const [username, setUsername] = useState('');
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
   
   // Add states for viewing saved passwords
   const [showSavedPasswords, setShowSavedPasswords] = useState(false);
-  const [savedPasswords, setSavedPasswords] = useState([]);
+  const [savedPasswords, setSavedPasswords] = useState<SavedPassword[]>([]);
   const [loadingPasswords, setLoadingPasswords] = useState(false);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
   
@@ -132,12 +153,13 @@ const PasswordGenerator = () => {
     }
     
     try {
-      const { error } = await savePassword(user.id, password, passwordLabel);
+      const { error } = await savePassword(user.id, password, passwordLabel, username);
       
       if (error) throw error;
       
       setSaveSuccess('Password saved successfully!');
       setPasswordLabel('');
+      setUsername('');
       setShowSaveModal(false);
       
       // Refresh the list of saved passwords if it's being displayed
@@ -171,7 +193,7 @@ const PasswordGenerator = () => {
     }
   };
 
-  const getStrengthLabel = (score) => {
+  const getStrengthLabel = (score: number): string => {
     switch(score) {
       case 0: return 'Very Weak';
       case 1: return 'Weak';
@@ -182,7 +204,7 @@ const PasswordGenerator = () => {
     }
   };
   
-  const getStrengthColor = (score) => {
+  const getStrengthColor = (score: number): string => {
     switch(score) {
       case 0: 
       case 1: return 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400';
@@ -193,7 +215,7 @@ const PasswordGenerator = () => {
     }
   };
 
-  const getStrengthBarColor = (score) => {
+  const getStrengthBarColor = (score: number): string => {
     switch(score) {
       case 0: 
       case 1: return 'bg-red-500';
@@ -445,6 +467,19 @@ const PasswordGenerator = () => {
                 />
               </div>
               
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">
+                  Username (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full p-3 border border-border rounded-lg bg-secondary/20"
+                  placeholder="Enter the username for this account"
+                />
+              </div>
+              
               {saveError && (
                 <div className="p-3 mb-4 border rounded-lg bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800">
                   <p className="text-sm text-red-600 dark:text-red-400">{saveError}</p>
@@ -512,7 +547,14 @@ const PasswordGenerator = () => {
                         className="border border-border rounded-lg p-4 bg-secondary/10"
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-medium">{saved.password_label}</h4>
+                          <div>
+                            <h4 className="font-medium">{saved.password_label}</h4>
+                            {saved.username && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Username: {saved.username}
+                              </p>
+                            )}
+                          </div>
                           <div className="flex space-x-2">
                             <button
                               onClick={() => {

@@ -7,6 +7,8 @@ import toast from 'react-hot-toast';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isLoggedIn: boolean;
+  userType: 'user' | 'guest' | 'admin' | null;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -18,7 +20,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userType, setUserType] = useState<'user' | 'guest' | 'admin' | null>(null);
   const navigate = useNavigate();
+  
+  // Compute isLoggedIn based on user state
+  const isLoggedIn = user !== null;
+
+  // Determine user type when user state changes
+  useEffect(() => {
+    if (!user) {
+      setUserType(null);
+      return;
+    }
+    
+    // Check if the user is an admin (you might want to check a specific claim or role)
+    // This is a simple example - implement your actual admin check logic here
+    if (user.email?.endsWith('@admin.vigilynx.com')) {
+      setUserType('admin');
+    } else if (user.email === 'guest@example.com') {
+      setUserType('guest');
+    } else {
+      setUserType('user');
+    }
+  }, [user]);
 
   useEffect(() => {
     // Check active sessions and sets the user
@@ -97,6 +121,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         loading,
+        isLoggedIn,
+        userType,
         signIn,
         signUp,
         signOut,
@@ -114,4 +140,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}
