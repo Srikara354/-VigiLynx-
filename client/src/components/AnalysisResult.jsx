@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { AlertCircle, AlertTriangle, CheckCircle, Info, ChevronDown, ChevronUp, Link, Shield, FileText, Code } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle, Info, ChevronDown, ChevronUp, Link, Shield, FileText, Code, Lock } from 'lucide-react';
 import { useState, memo } from 'react';
 import { cn, getSeverityColor, formatDate, sanitizeContent } from '../lib/utils';
+import zxcvbn from 'zxcvbn';
 
 const AnalysisResult = memo(function AnalysisResult({ result }) {
   const [expandedSection, setExpandedSection] = useState('summary');
@@ -72,6 +73,129 @@ const AnalysisResult = memo(function AnalysisResult({ result }) {
             )}
           </div>
         ))}
+      </div>
+    );
+  };
+
+  const renderPasswordStrength = (password) => {
+    if (!password) return null;
+    
+    const strength = zxcvbn(password);
+    const score = strength.score; // 0-4 (0 = very weak, 4 = very strong)
+    
+    const getStrengthLabel = (score) => {
+      switch(score) {
+        case 0: return 'Very Weak';
+        case 1: return 'Weak';
+        case 2: return 'Fair';
+        case 3: return 'Good';
+        case 4: return 'Strong';
+        default: return 'Unknown';
+      }
+    };
+    
+    const getStrengthColor = (score) => {
+      switch(score) {
+        case 0: 
+        case 1: return 'text-danger bg-danger/10 border-danger/20';
+        case 2: return 'text-warning bg-warning/10 border-warning/20';
+        case 3: 
+        case 4: return 'text-success bg-success/10 border-success/20';
+        default: return 'text-muted-foreground bg-secondary/30 border-border';
+      }
+    };
+    
+    const strengthLabel = getStrengthLabel(score);
+    const strengthColor = getStrengthColor(score);
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-medium">Password Strength</span>
+            <span className={`text-sm px-2 py-0.5 rounded-full ${strengthColor}`}>
+              {strengthLabel}
+            </span>
+          </div>
+          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${(score + 1) * 20}%` }}
+              transition={{ duration: 0.8, type: "spring" }}
+              className={`h-full ${score <= 1 ? 'bg-danger' : score === 2 ? 'bg-warning' : 'bg-success'}`}
+            />
+          </div>
+        </div>
+        
+        {strength.feedback.warning && (
+          <div className="p-3 border rounded-lg bg-warning/5 border-warning/20">
+            <p className="text-sm font-medium text-warning flex items-center gap-1">
+              <AlertTriangle size={16} /> Warning
+            </p>
+            <p className="text-sm mt-1">{strength.feedback.warning}</p>
+          </div>
+        )}
+        
+        {strength.feedback.suggestions.length > 0 && (
+          <div className="p-3 border rounded-lg bg-info/5 border-info/20">
+            <p className="text-sm font-medium text-info flex items-center gap-1">
+              <Info size={16} /> Suggestions
+            </p>
+            <ul className="mt-1 text-sm space-y-1 list-disc pl-5">
+              {strength.feedback.suggestions.map((suggestion, index) => (
+                <li key={index}>{suggestion}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
+        <div className="p-3 border rounded-lg bg-secondary/20 border-border">
+          <p className="text-sm font-medium mb-2">Password Details</p>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <span className="text-muted-foreground">Estimated guesses: </span>
+              <span className="font-mono">{strength.guesses.toLocaleString()}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Crack time: </span>
+              <span className="font-mono">{strength.crack_times_display.offline_slow_hashing_1e4_per_second}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  const renderPasswordSection = () => {
+    if (!result.password) return null;
+    
+    return (
+      <div className="space-y-4">
+        {renderPasswordStrength(result.password)}
+        
+        {result.is_breached !== undefined && (
+          <div className={`p-4 border rounded-lg ${result.is_breached ? 
+            'bg-danger/5 border-danger/20' : 
+            'bg-success/5 border-success/20'}`}>
+            <div className="flex items-center gap-2">
+              {result.is_breached ? (
+                <AlertCircle size={18} className="text-danger" />
+              ) : (
+                <CheckCircle size={18} className="text-success" />
+              )}
+              <span className="font-medium">
+                {result.is_breached ? 
+                  'Password found in data breaches' : 
+                  'Password not found in known data breaches'}
+              </span>
+            </div>
+            <p className="mt-2 text-sm">
+              {result.is_breached ? 
+                'This password has been exposed in data breaches. We strongly recommend changing it to a secure, unique password immediately.' : 
+                'Good news! This password hasn\'t been found in known data breaches. However, always ensure you use unique passwords for different accounts.'}
+            </p>
+          </div>
+        )}
       </div>
     );
   };
@@ -201,6 +325,13 @@ const AnalysisResult = memo(function AnalysisResult({ result }) {
           {result.file_type && renderDetailItem('File Type', result.file_type, <FileText size={16} />)}
           {result.file_size && renderDetailItem('File Size', `${(result.file_size / 1024).toFixed(2)} KB`, <FileText size={16} />)}
         </div>
+      )}
+      
+      {result.password && renderCollapsibleSection(
+        'password',
+        'Password Security',
+        <Lock size={20} className="text-primary" />,
+        renderPasswordSection()
       )}
       
       {renderCollapsibleSection(
