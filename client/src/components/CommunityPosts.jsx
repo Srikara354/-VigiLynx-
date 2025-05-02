@@ -29,8 +29,8 @@ function CommunityPosts() {
         setCurrentUser(session.user);
       }
 
-      // Get posts with pagination
-      let query = supabase.from('posts')
+      // Get posts with pagination - Using community_posts table as defined in usePosts.ts
+      let query = supabase.from('community_posts')
         .select('*')
         .order('created_at', { ascending: false })
         .range(currentPage * postsPerPage, (currentPage + 1) * postsPerPage - 1);
@@ -42,6 +42,8 @@ function CommunityPosts() {
       const { data, error: fetchError } = await query;
       
       if (fetchError) throw fetchError;
+
+      console.log("Fetched posts:", data); // Debugging
 
       // Update pagination state
       setHasMore(data?.length === postsPerPage);
@@ -82,15 +84,19 @@ function CommunityPosts() {
         return;
       }
       
+      console.log("Current user session:", session.user);
+      
+      // Simplified post data to match exact schema from types/community.ts
       const newPostData = { 
         title: newPostTitle,
         content: newPost,
         user_id: session.user.id,
-        author: session.user.email,
-        category: 'general',
-        likes: 0,
-        dislikes: 0
+        user_name: session.user.email,
+        likes: 0
+        // Note: created_at is handled automatically by Supabase
       };
+      
+      console.log("Preparing to insert post:", newPostData);
       
       // Optimistic update
       const optimisticPost = {
@@ -102,20 +108,29 @@ function CommunityPosts() {
       
       setPosts(prevPosts => [optimisticPost, ...prevPosts]);
       
-      const { data, error } = await supabase.from('posts').insert([newPostData]).select();
+      // First, ensure we have the right table
+      console.log("Database tables check");
+      const { data: tables } = await supabase.from('_metadata').select('*');
+      console.log("Tables:", tables);
       
-      if (error) throw error;
+      // Using community_posts table
+      const { data, error } = await supabase.from('community_posts').insert([newPostData]);
       
-      // Replace optimistic post with real one
-      setPosts(prevPosts => 
-        prevPosts.map(post => post.id === optimisticPost.id ? data[0] : post)
-      );
+      if (error) {
+        console.error("Supabase insert error details:", error);
+        throw error;
+      }
+      
+      console.log("Successfully created post, refreshing list...");
+      
+      // Refresh the posts list to get the newly created post
+      fetchPosts(true);
       
       setNewPostTitle('');
       setNewPost('');
     } catch (err) {
       console.error('Error submitting post:', err);
-      setError('Failed to submit your post. Please try again.');
+      setError(`Failed to submit your post: ${err.message || 'Unknown error'}`);
       
       // Remove optimistic post on error
       setPosts(prevPosts => prevPosts.filter(post => !post.isOptimistic));
@@ -130,8 +145,9 @@ function CommunityPosts() {
       const postToDelete = posts.find(p => p.id === postId);
       setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
       
+      // Using community_posts table
       const { error } = await supabase
-        .from('posts')
+        .from('community_posts')
         .delete()
         .eq('id', postId);
       
@@ -165,8 +181,9 @@ function CommunityPosts() {
         })
       );
       
+      // Using community_posts table
       const { error } = await supabase
-        .from('posts')
+        .from('community_posts')
         .update({ 
           [voteType === 'like' ? 'likes' : 'dislikes']: voteType === 'like' ? post.likes + 1 : post.dislikes + 1 
         })
@@ -291,7 +308,7 @@ function CommunityPosts() {
                       <div>
                         <h3 className="text-lg font-medium mb-1">{sanitizeContent(post.title)}</h3>
                         <div className="flex items-center text-xs text-muted-foreground">
-                          <span>Posted by {post.author}</span>
+                          <span>Posted by {post.user_name || "Anonymous"}</span>
                           <span className="mx-2">•</span>
                           <span>{new Date(post.created_at).toLocaleDateString()}</span>
                           <span className="mx-2">•</span>

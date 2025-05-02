@@ -29,7 +29,8 @@ interface Post {
   hashtags?: string[];
 }
 
-export const CommunityPosts = () => {
+// Changed export name to avoid conflicts with the JSX version
+export const CommunityPostsDemo = () => {
   const [posts, setPosts] = useState<Post[]>([
     {
       id: 1,
@@ -325,3 +326,6 @@ export const CommunityPosts = () => {
     </div>
   );
 };
+
+// Added default export that points to the renamed component
+export default CommunityPostsDemo;
