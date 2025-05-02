@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Info, Mail, ArrowRight, Newspaper, MessageSquare, Key } from 'lucide-react';
+import { Menu, X, Info, Mail, ArrowRight, Newspaper, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 function RightMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
+
+  // Don't render the menu if user is not logged in
+  if (!isLoggedIn) return null;
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -86,16 +91,6 @@ function RightMenu() {
                 <span className="font-medium">Community</span>
                 <ArrowRight size={16} className="ml-auto" />
               </button>
-              
-              <Link 
-                to="/password-generator"
-                onClick={closeMenu}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary transition-all-normal w-full"
-              >
-                <Key size={20} className="text-primary" />
-                <span className="font-medium">Password Generator</span>
-                <ArrowRight size={16} className="ml-auto" />
-              </Link>
               
               <Link 
                 to="/about-us"

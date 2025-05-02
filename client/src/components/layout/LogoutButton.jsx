@@ -3,7 +3,10 @@ import { LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 function LogoutButton() {
-  const { logout } = useAuth();
+  const { logout, isLoggedIn } = useAuth();
+
+  // Don't render the button if user is not logged in
+  if (!isLoggedIn) return null;
 
   return (
     <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border/20 glass">
