@@ -125,6 +125,8 @@ function MainContent({ view, setView }) {
             />
           ) : view === 'password-checker' ? (
             <PasswordChecker />
+          ) : view === 'learn' ? (
+            <Learn />
           ) : null}
         </motion.div>
       </AnimatePresence>

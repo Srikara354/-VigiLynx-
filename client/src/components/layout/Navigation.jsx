@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ChevronRight, Shield, Users, LineChart, KeyRound, Key } from 'lucide-react';
+import { BookOpen, ChevronRight, Shield, Users, LineChart, KeyRound, Key } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const navigationItems = [
   { id: 'cyberguard', label: 'CyberGuard', icon: <Shield size={20} /> },
   { id: 'parental', label: 'Parental Monitor', icon: <Users size={20} /> },
+  { id: 'learn', label: 'Learn', icon: <BookOpen size={20} /> }, // Added Learn as 3rd item
   { id: 'threat', label: 'Threat Dashboard', icon: <LineChart size={20} /> },
   { id: 'password-checker', label: 'Password Checker', icon: <KeyRound size={20} /> },
   { id: 'password-generator', label: 'Password Generator', icon: <Key size={20} />, path: '/password-generator' },
