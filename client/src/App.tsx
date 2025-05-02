@@ -13,6 +13,7 @@ import CyberNews from '@/components/CyberNews';  // Import CyberNews component
 const Reports = lazy(() => import('@/components/Reports'));
 const Settings = lazy(() => import('@/components/Settings'));
 const NotFound = lazy(() => import('@/components/NotFound'));
+const PasswordChecker = lazy(() => import('@/pages/PasswordChecker'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -138,6 +139,20 @@ export const App = () => {
                           variants={pageVariants}
                         >
                           <Settings />
+                        </motion.div>
+                      }
+                    />
+                    <Route
+                      path="/password-checker"
+                      element={
+                        <motion.div
+                          key="password-checker"
+                          initial="initial"
+                          animate="animate"
+                          exit="exit"
+                          variants={pageVariants}
+                        >
+                          <PasswordChecker />
                         </motion.div>
                       }
                     />

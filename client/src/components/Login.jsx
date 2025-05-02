@@ -4,6 +4,7 @@ import { ShieldCheck, ArrowRight, User, Mail, Lock, Eye, EyeOff, Shield, CheckCi
 import { supabase } from '../../supabase';
 import { useAuth } from '../contexts/AuthContext';
 import AlertMessage from './ui/AlertMessage';
+import PasswordSecurityCheck from './ui/PasswordSecurityCheck';
 
 function Login() {
   const [error, setError] = useState(null);
@@ -213,9 +214,14 @@ function Login() {
                 </button>
               </div>
               {isSignUp && (
-                <p className="text-xs text-muted-foreground mt-1.5">
-                  Use at least 8 characters with a mix of letters and numbers.
-                </p>
+                <div>
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Use at least 8 characters with a mix of letters and numbers.
+                  </p>
+                  {password && password.length >= 6 && (
+                    <PasswordSecurityCheck password={password} className="mt-2" />
+                  )}
+                </div>
               )}
             </div>
 

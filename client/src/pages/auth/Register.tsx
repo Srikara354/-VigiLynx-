@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import PasswordSecurityCheck from '../../components/ui/PasswordSecurityCheck';
 
 export function Register() {
   const [email, setEmail] = useState('');
@@ -105,6 +106,13 @@ export function Register() {
             </div>
           </div>
 
+          {/* Password Security Check */}
+          {password && password.length >= 6 && (
+            <div className="mt-2">
+              <PasswordSecurityCheck password={password} />
+            </div>
+          )}
+
           <div>
             <button
               type="submit"
@@ -153,4 +161,4 @@ export function Register() {
       </div>
     </div>
   );
-} 
+}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import {
@@ -11,6 +11,7 @@ import {
   X,
   Bell,
   User,
+  KeyRound,
 } from 'lucide-react';
 import type { BaseProps, WithChildren } from '@/types';
 
@@ -23,6 +24,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: Shield },
   { name: 'Community', href: '/community', icon: Users },
   { name: 'Reports', href: '/reports', icon: FileText },
+  { name: 'Password Checker', href: '/password-checker', icon: KeyRound },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

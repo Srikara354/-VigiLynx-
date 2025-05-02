@@ -11,7 +11,8 @@ import {
   LineChart,
   Moon,
   Sun,
-  User
+  User,
+  KeyRound
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useAuth } from './contexts/AuthContext';
@@ -26,6 +27,7 @@ import CyberNews from './components/CyberNews';
 import CommunityPost from './components/CommunityPosts';
 import ThreatDashboard from './components/ThreatDashboard';
 import AlertMessage from './components/ui/AlertMessage';
+import PasswordChecker from './pages/PasswordChecker';
 
 function MainContent({ view, setView }) {
   const { isLoggedIn, userType, authError } = useAuth();
@@ -105,6 +107,8 @@ function MainContent({ view, setView }) {
               backToMain="Guest users can't access the threat dashboard. Please create an account 
                 or log in to view threat analytics."
             />
+          ) : view === 'password-checker' ? (
+            <PasswordChecker />
           ) : null}
         </motion.div>
       </AnimatePresence>
