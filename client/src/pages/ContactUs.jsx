@@ -50,7 +50,9 @@ function ContactUs() {
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
             <Mail size={28} className="text-primary" />
             Contact Us
-          </h1>
+          </h1>education, innovative tools, and community support.
+
+As cyber threats continue to evolve, our team remains dedicated to developing solutions that adapt to the changing landscape, ensuring that
           <div className="h-1 w-20 bg-primary rounded"></div>
         </div>
 
@@ -174,10 +176,10 @@ function ContactUs() {
                   <div>
                     <p className="font-medium">Call Us</p>
                     <a href="tel:+15551234567" className="text-sm text-primary hover:underline">
-                      +1 (555) 123-4567
+                      +91 09876 12345
                     </a>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Monday-Friday, 9am-5pm PST
+                      Monday-Friday, 9am-5pm IST
                     </p>
                   </div>
                 </div>
@@ -189,8 +191,8 @@ function ContactUs() {
                   <div>
                     <p className="font-medium">Office</p>
                     <p className="text-sm text-muted-foreground">
-                      123 Security Ave, Suite 400<br />
-                      San Francisco, CA 94105
+                      123 Security Street, Marathalli<br />
+                      Bengaluru, Karnataka, IN 560103
                     </p>
                   </div>
                 </div>
@@ -203,13 +205,13 @@ function ContactUs() {
                 <div className="bg-secondary/20 p-3 rounded-lg">
                   <h3 className="font-medium mb-1">What services does VigiLynx offer?</h3>
                   <p className="text-sm text-muted-foreground">
-                    We provide cybersecurity solutions including threat detection, vulnerability assessments, and educational resources.
+                  VigiLynx provides phishing/malware protection, threat monitoring, parental controls, password tools, cybersecurity education, news, community, support, and theme customization.
                   </p>
                 </div>
                 <div className="bg-secondary/20 p-3 rounded-lg">
                   <h3 className="font-medium mb-1">How can I report a security issue?</h3>
                   <p className="text-sm text-muted-foreground">
-                    You can contact our security team directly at security@vigilynx.com for urgent matters.
+                    You can contact our security team directly at support@vigilynx.com for urgent matters.
                   </p>
                 </div>
                 <div className="bg-secondary/20 p-3 rounded-lg">
