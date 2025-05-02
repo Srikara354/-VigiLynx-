@@ -29,6 +29,7 @@ import CommunityPost from './components/CommunityPosts';
 import ThreatDashboard from './components/ThreatDashboard';
 import AlertMessage from './components/ui/AlertMessage';
 import PasswordChecker from './pages/PasswordChecker';
+import PasswordGenerator from './pages/PasswordGenerator';
 
 // Pages
 import AboutUs from './pages/AboutUs';
@@ -148,6 +149,7 @@ function App() {
           <Route path="/about-us" element={<PageWithLayout Component={AboutUs} />} />
           <Route path="/contact-us" element={<PageWithLayout Component={ContactUs} />} />
           <Route path="/cyber-news" element={<PageWithLayout Component={CyberNews} />} />
+          <Route path="/password-generator" element={<PageWithLayout Component={PasswordGenerator} />} />
           <Route path="*" element={
             <Layout>
               {(view, setView) => <MainContent view={view} setView={setView} />}

@@ -1,4 +1,5 @@
 import { SHA1 } from 'crypto-js';
+import { supabase } from '../lib/supabase';
 
 /**
  * Checks if a password has been found in known data breaches using the "Have I Been Pwned" API
@@ -55,4 +56,95 @@ export function getBreachMessage(isBreached: boolean): string {
   return isBreached 
     ? 'This password has been found in data breaches. We strongly recommend changing it to a secure, unique password.'
     : 'Good news! This password hasn\'t been found in known data breaches.';
+}
+
+/**
+ * Saves a generated password to the user's account
+ * 
+ * @param userId - The user's ID
+ * @param password - The password to save
+ * @param label - A user-friendly label for the password (e.g., "GitHub Account")
+ * @returns A promise that resolves when the password is saved
+ */
+export async function savePassword(userId: string, password: string, label: string): Promise<{data: any, error: any}> {
+  try {
+    // Don't save passwords for guest users
+    if (!userId) {
+      throw new Error('You must be logged in to save passwords');
+    }
+    
+    // Store the password in the saved_passwords table
+    const { data, error } = await supabase
+      .from('saved_passwords')
+      .insert([
+        { 
+          user_id: userId, 
+          password_label: label,
+          password_value: password,
+          created_at: new Date().toISOString() 
+        }
+      ]);
+      
+    if (error) throw error;
+    
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error saving password:', error);
+    return { data: null, error };
+  }
+}
+
+/**
+ * Retrieves all saved passwords for a user
+ * 
+ * @param userId - The user's ID
+ * @returns A promise that resolves to an array of saved passwords
+ */
+export async function getSavedPasswords(userId: string): Promise<{data: any[], error: any}> {
+  try {
+    if (!userId) {
+      throw new Error('You must be logged in to retrieve saved passwords');
+    }
+    
+    const { data, error } = await supabase
+      .from('saved_passwords')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+      
+    if (error) throw error;
+    
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error retrieving saved passwords:', error);
+    return { data: [], error };
+  }
+}
+
+/**
+ * Deletes a saved password
+ * 
+ * @param passwordId - The ID of the password to delete
+ * @param userId - The user's ID (for verification)
+ * @returns A promise that resolves when the password is deleted
+ */
+export async function deleteSavedPassword(passwordId: string, userId: string): Promise<{success: boolean, error: any}> {
+  try {
+    if (!userId) {
+      throw new Error('You must be logged in to delete saved passwords');
+    }
+    
+    const { error } = await supabase
+      .from('saved_passwords')
+      .delete()
+      .eq('id', passwordId)
+      .eq('user_id', userId);
+      
+    if (error) throw error;
+    
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Error deleting saved password:', error);
+    return { success: false, error };
+  }
 }
