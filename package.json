@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "build": "cd client && npm install && npm run build",
+    "start": "cd client && npm start",
+    "dev": "cd client && npm run dev"
+  },
   "dependencies": {
     "express-rate-limit": "^7.5.0",
     "express-validator": "^7.2.1",
