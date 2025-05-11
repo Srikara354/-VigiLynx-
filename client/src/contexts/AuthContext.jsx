@@ -12,11 +12,25 @@ export function AuthProvider({ children }) {
 
   // Initialize auth state on component mount
   useEffect(() => {
+    let isMounted = true;
+    
+    // Safety timeout to prevent infinite loading
+    const safetyTimeout = setTimeout(() => {
+      if (isMounted && isLoading) {
+        console.warn('Auth check taking too long, forcing load completion');
+        setIsLoading(false);
+        setAuthError('Authentication service may be unavailable. Please try again later.');
+      }
+    }, 5000); // 5 seconds timeout
+    
     const getSession = async () => {
       setIsLoading(true);
       setAuthError(null);
       try {
-        const { data } = await supabase.auth.getSession();
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) throw error;
+        
         if (data.session?.user) {
           setUser(data.session.user);
           setIsLoggedIn(true);
@@ -37,12 +51,14 @@ export function AuthProvider({ children }) {
         }
       } catch (error) {
         console.error("Error fetching session:", error);
-        setAuthError(error.message);
+        setAuthError(error.message || "Failed to connect to authentication service");
         setUser(null);
         setIsLoggedIn(false);
         setUserType(null);
       } finally {
-        setTimeout(() => setIsLoading(false), 500);
+        if (isMounted) {
+          setTimeout(() => setIsLoading(false), 500);
+        }
       }
     };
 
@@ -72,9 +88,12 @@ export function AuthProvider({ children }) {
         setUserType(null);
       }
       setAuthError(null);
+      setIsLoading(false); // Ensure loading state is off after auth state change
     });
 
     return () => {
+      isMounted = false;
+      clearTimeout(safetyTimeout);
       subscription?.unsubscribe();
     };
   }, []);

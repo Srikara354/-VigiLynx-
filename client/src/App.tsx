@@ -3,7 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Layout } from '@/components/layout/Layout';
 import { Dashboard } from '@/components/Dashboard';
-import { CommunityPosts } from '@/components/CommunityPosts';
+// Fix the import by using the default export
+import CommunityPostsDemo from '@/components/CommunityPosts';
 import { Suspense, lazy } from 'react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ThemeProvider } from '@/contexts/ThemeContext';
@@ -96,7 +97,7 @@ export const App = () => {
                           exit="exit"
                           variants={pageVariants}
                         >
-                          <CommunityPosts />
+                          <CommunityPostsDemo />
                         </motion.div>
                       }
                     />

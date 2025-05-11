@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertTriangle, CheckCircle, Loader2, Lock } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { checkBreachedPassword, getBreachMessage } from '../../utils/passwordSecurity';
 import zxcvbn from 'zxcvbn';
 

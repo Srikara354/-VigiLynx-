@@ -147,7 +147,7 @@ const PasswordGenerator = () => {
       return;
     }
     
-    if (!isLoggedIn || userType === 'guest') {
+    if (!isLoggedIn || userType === 'guest' || !user) {
       setSaveError('You must be logged in to save passwords');
       return;
     }
