@@ -1,11 +1,8 @@
 {
-  "buildCommand": "npm install --legacy-peer-deps && npm run build",
-  "outputDirectory": "dist",
   "framework": "vite",
+  "buildCommand": "npm install --prefer-offline --no-audit && npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
-  ],
-  "env": {
-    "VITE_API_URL": "https://vigilynx-api.onrender.com"
-  }
+  ]
 }
