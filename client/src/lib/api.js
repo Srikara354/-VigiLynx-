@@ -1,8 +1,11 @@
 import axios from 'axios';
 import { supabase } from '../../supabase';
 
-// Define API base URL from environment variables
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'; // Updated to match the actual server port
+// Define API base URL from environment variables with better fallback handling
+const API_URL = import.meta.env.VITE_API_URL || 
+                (window.location.hostname === 'localhost' ? 
+                 'http://localhost:5000' : 
+                 'https://vigilynx-api.onrender.com'); // Default production API URL
 
 // Configure axios defaults
 const api = axios.create({
