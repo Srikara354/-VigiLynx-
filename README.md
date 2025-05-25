@@ -62,20 +62,21 @@
 ```bash
 git clone https://github.com/Srikara354/-VigiLynx-
 cd -VigiLynx-'
-
 ```
 ### 2. Start the Backend
-
-`cd backend
+```bash
+cd backend
 npm install
-node index.js`
+node index.js
+```
 ### 3. Start the Frontend
-
-`cd frontend
+```bash
+cd frontend
 npm install
-npm start`
+npm start
+```
 
-### 📈 Future Enhancements
+## 📈 Future Enhancements
 🧠 AI-powered image-based phishing detection
 
 ✉️ Email scanner for malicious attachments and links
@@ -84,7 +85,7 @@ npm start`
 
 🌐 Real-time cyber threat map
 
-### 🤝 Contributors
+## 🤝 Contributors
 This project is a collaborative group effort developed by a team of cybersecurity enthusiasts and developers as part of an academic initiative.
 
 
