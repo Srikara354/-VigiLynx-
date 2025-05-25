@@ -55,19 +55,6 @@
 
 ---
 
-## 📁 Folder Structure
-
-VigiLynx/
-├── backend/ # Node.js + Express API
-├── frontend/ # React-based UI
-│ ├── components/ # Reusable React components
-│ ├── pages/ # Feature pages (Detection, Community, etc.)
-│ └── assets/ # Static files
-├── public/ # HTML template and public assets
-└── README.md # Project documentation
-
----
-
 ## 🧪 Setup Instructions
 
 ### 1. Clone the Repository
@@ -76,18 +63,30 @@ VigiLynx/
 git clone https://github.com/Srikara354/-VigiLynx-
 cd -VigiLynx-'
 
-setup:
-  - step: "Start the Backend"
-    commands:
-      - cd backend
-      - npm install
-      - node index.js
+```
+### 2. Start the Backend
 
-  - step: "Start the Frontend"
-    commands:
-      - cd frontend
-      - npm install
-      - npm start
+`cd backend
+npm install
+node index.js`
+### 3. Start the Frontend
+
+`cd frontend
+npm install
+npm start`
+
+### 📈 Future Enhancements
+🧠 AI-powered image-based phishing detection
+
+✉️ Email scanner for malicious attachments and links
+
+📲 Mobile app integration
+
+🌐 Real-time cyber threat map
+
+### 🤝 Contributors
+This project is a collaborative group effort developed by a team of cybersecurity enthusiasts and developers as part of an academic initiative.
+
 
 
 
