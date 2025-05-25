@@ -61,7 +61,7 @@
 
 ```bash
 git clone https://github.com/Srikara354/-VigiLynx-
-cd -VigiLynx-'
+cd -VigiLynx-
 ```
 ### 2. Start the Backend
 ```bash
