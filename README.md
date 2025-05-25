@@ -65,13 +65,13 @@ cd -VigiLynx-'
 ```
 ### 2. Start the Backend
 ```bash
-cd backend
+cd server
 npm install
 node index.js
 ```
 ### 3. Start the Frontend
 ```bash
-cd frontend
+cd client
 npm install
 npm start
 ```
