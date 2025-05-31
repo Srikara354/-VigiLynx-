@@ -63,8 +63,9 @@
 git clone https://github.com/Srikara354/-VigiLynx-
 cd -VigiLynx-
 ```
-### 2.Set Up Environment Variables
+### 2. Set Up Environment Variables
 Create a .env file in both the client and server directories based on the following templates:
+
 client/.env
 ```
 VITE_API_URL=your_api_url_here
